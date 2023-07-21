@@ -75,3 +75,11 @@ clean:
 load:
 	openocd -f board/st_nucleo_f4.cfg
 
+clean_build:clean all
+gdb:
+	arm-none-eabi-gdb -x init.gdb
+gdb_debug:
+	arm-none-eabi-gdb -x init_debug.gdb
+
+flash_code:clean_build gdb
+debug_code:clean_build gdb_debug
