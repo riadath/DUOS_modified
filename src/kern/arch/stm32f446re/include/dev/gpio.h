@@ -31,4 +31,8 @@
 #define __GPIO_H
 #include "../sys/stm32_peps.h"
 void DRV_GPIO_INIT(GPIO_TypeDef*);
+void GPIO_Init(GPIO_TypeDef*,GPIO_InitTypeDef*);
+void GPIO_WritePin(GPIO_TypeDef*,uint16_t,uint8_t);
+uint8_t GPIO_IDR_Status(GPIO_TypeDef*,uint16_t);
+
 #endif

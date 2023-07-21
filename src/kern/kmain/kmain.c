@@ -42,6 +42,11 @@ void kmain(void)
 	__sys_init();
 	kprintf("____DRIVER CODE START____\n");
 
+	while(1){
+			
+	}
+
+
 	kprintf("____DRIVER CODE END____\n");
 
 }

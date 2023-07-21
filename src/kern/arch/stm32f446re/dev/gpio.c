@@ -30,7 +30,53 @@
 #include <gpio.h>
 void DRV_GPIO_INIT(GPIO_TypeDef* gpio)
 {
-gpio->MODER |= 1<<0;	
+  /*
+    - There are 8 GPIOs each separated by 0x400
+    - We simply calculate the offset from GPIOA
+    - Divide by 0x400 to get the position
+    - Enable the GPIO in RCC
+  */
+  uint32_t base = (uint64_t)GPIOA;
+  uint32_t offset = (uint64_t)gpio - base;
+  uint32_t pos = offset / 0x400;
+}
+void GPIO_Init(GPIO_TypeDef* gpio,GPIO_InitTypeDef *gpio_init)
+{
+
+  /*
+    Enable GPIO in RCC
+  */
+  
+
+  for (uint32_t pos = 0U;pos < 16U;pos++){
+    if(gpio_init->Pin & (1 << pos)){
+      //set mode
+      gpio->MODER &= ~(3U << (pos * 2));
+      gpio->MODER |= ((gpio_init->Mode) << (pos * 2));
+      //set speed
+      gpio->OSPEEDR &= ~(3U << (pos * 2));
+      gpio->OSPEEDR |= ((gpio_init->Speed) << (pos * 2));
+    }
+  }
 }
 
 
+void GPIO_WritePin(GPIO_TypeDef* gpio,uint16_t pin,uint8_t val)
+{
+  if(val == 0){
+    gpio->BSRR |= (1 << (pin + 16));
+  }
+  else{
+    gpio->BSRR |= (1 << pin);
+  }
+}
+
+uint8_t GPIO_IDR_Status(GPIO_TypeDef* gpio,uint16_t pin)
+{
+  if(gpio->IDR & (1 << pin)){
+    return 1;
+  }
+  else{
+    return 0;
+  }
+}

@@ -45,6 +45,7 @@
 #define GPIOF 	((GPIO_TypeDef *)0x40021400)
 #define GPIOG 	((GPIO_TypeDef *)0x40021800)
 #define GPIOH 	((GPIO_TypeDef *)0x40021C00)
+
 /**
 * Define USARTx
 **/
@@ -194,6 +195,7 @@ uint32_t volatile AFRL; /* Offset: 0x20 (R/W) Alternate Function Low Register */
 uint32_t volatile AFRH; /* Offset: 0x24 (R/W) Alternate Function High Register */
 } GPIO_TypeDef;
 
+
 /*
 * Data Structure for USART
 */
@@ -237,6 +239,29 @@ uint32_t volatile DMAR; /* Offset: 0x4C (R/W) TIM1&TIM8 DMA address for full tra
 uint32_t volatile OR;   /*!< TIM option register, Address offset: 0x50 */
 } TIM_TypeDef;
 
+/**More GPIO Preprcoessors and Structs added*/
+
+/**
+    GPIOx Modes
+*/
+#define GPIO_MODE_INPUT 	0x00
+#define GPIO_MODE_OUTPUT 	0x01
+#define GPIO_MODE_AF 		0x02
+#define GPIO_MODE_ANALOG 	0x03
+
+typedef struct
+{
+  uint32_t Pin;       /*!< Specifies the GPIO pins to be configured.
+                           This parameter can be any value of @ref GPIO_pins_define */
+  uint32_t Mode;      /*!< Specifies the operating mode for the selected pins.
+                           This parameter can be a value of @ref GPIO_mode_define */
+  uint32_t Pull;      /*!< Specifies the Pull-up or Pull-Down activation for the selected pins.
+                           This parameter can be a value of @ref GPIO_pull_define */
+  uint32_t Speed;     /*!< Specifies the speed for the selected pins.
+                           This parameter can be a value of @ref GPIO_speed_define */
+  uint32_t Alternate;  /*!< Peripheral to be connected to the selected pins. 
+                            This parameter can be a value of @ref GPIO_Alternate_function_selection */
+}GPIO_InitTypeDef;
 
 #endif
 
