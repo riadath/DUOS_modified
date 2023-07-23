@@ -105,7 +105,7 @@ void kprintf(char *format,...)
 }
 
 // Simplified version of scanf
-void kscanf(char *format,...)
+void  kscanf(char *format,...)
 {
 //write your code here
 	va_list list;

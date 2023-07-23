@@ -3,7 +3,7 @@
 #include <cm4.h>
 void test_code_pa5(void){
 
-    int test_pin = 2;
+    int test_pin = 3;
     GPIO_InitTypeDef gpio_init;
     gpio_init.Mode = GPIO_MODE_OUTPUT;
     gpio_init.Pin = (1 << test_pin);

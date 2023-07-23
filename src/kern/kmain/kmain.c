@@ -45,13 +45,13 @@
 void kmain(void)
 {
 	uint8_t buff;
-	char *str;
 	__sys_init();
 	kprintf("____DRIVER CODE START____\n");
 	
-	kscanf("%s",&buff);
-	str = (char*)&buff;
-	kprintf("input = %s\n",str);
+	// kscanf("%s",&buff);
+	// char *str = (char*)&buff;
+	// kprintf("input = %s\n",str);
+	test_code_pa5();
 	
 	kprintf("____DRIVER CODE END____\n");
 }
