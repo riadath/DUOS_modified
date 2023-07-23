@@ -36,9 +36,12 @@ void DRV_GPIO_INIT(GPIO_TypeDef* gpio)
     - Divide by 0x400 to get the position
     - Enable the GPIO in RCC
   */
-  uint32_t base = (uint64_t)GPIOA;
-  uint32_t offset = (uint64_t)gpio - base;
+  uint32_t base = (uint32_t)GPIOA;
+  uint32_t offset = (uint32_t)gpio - base;
   uint32_t pos = offset / 0x400;
+  RCC->AHB1ENR |= (1 << pos);
+  
+
 }
 void GPIO_Init(GPIO_TypeDef* gpio,GPIO_InitTypeDef *gpio_init)
 {
@@ -64,9 +67,11 @@ void GPIO_Init(GPIO_TypeDef* gpio,GPIO_InitTypeDef *gpio_init)
 void GPIO_WritePin(GPIO_TypeDef* gpio,uint16_t pin,uint8_t val)
 {
   if(val == 0){
+    //clear
     gpio->BSRR |= (1 << (pin + 16));
   }
   else{
+    //set
     gpio->BSRR |= (1 << pin);
   }
 }

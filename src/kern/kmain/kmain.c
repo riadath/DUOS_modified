@@ -26,6 +26,7 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
+
  */
  
 #include <sys_init.h>
@@ -35,19 +36,23 @@
 #include <kstring.h>
 #include <stdint.h>
 #include <usart.h>
-//#include "../include/float.h"
+#include <gpio.h>
+
+//led matrix 
+#include <led_matrix.h>
+
 
 void kmain(void)
 {
+	uint8_t buff;
+	char *str;
 	__sys_init();
 	kprintf("____DRIVER CODE START____\n");
-
-	while(1){
-			
-	}
-
-
+	
+	kscanf("%s",&buff);
+	str = (char*)&buff;
+	kprintf("input = %s\n",str);
+	
 	kprintf("____DRIVER CODE END____\n");
-
 }
 
