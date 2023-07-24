@@ -44,14 +44,18 @@
 
 void kmain(void)
 {
-	uint8_t buff;
+	uint8_t digit;
 	__sys_init();
 	kprintf("____DRIVER CODE START____\n");
 	
-	// kscanf("%s",&buff);
-	// char *str = (char*)&buff;
-	// kprintf("input = %s\n",str);
-	test_code_pa5();
+
+	LED_MATRIX_INIT();
+	while(1){
+		kprintf("Enter a digit from 0-9 : ");
+		kscanf("%d",&digit);
+		kprintf("input = %d\n",digit);
+		print_digit(digit);
+	}
 	
 	kprintf("____DRIVER CODE END____\n");
 }

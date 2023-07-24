@@ -5,19 +5,24 @@
 #define ROW_COUNT 3
 #define COL_COUNT 3
 
-typedef struct {
+struct LED_PIN_INFO {
     GPIO_TypeDef* gpio;
     uint16_t pin;
-}LED_PIN_INFO;
+};
 
-LED_PIN_INFO pin_info_table[ROW_COUNT][COL_COUNT] = {
+static struct LED_PIN_INFO pin_info_table[ROW_COUNT][COL_COUNT] = {
     {{GPIOA,5},{GPIOA,6},{GPIOA,7}},
-    {{GPIOA,8},{GPIOB,9},{GPIOA,10}},
+    {{GPIOA,8},{GPIOA,9},{GPIOA,10}},
     {{GPIOB,1},{GPIOB,2},{GPIOB,3}}
 };
 
 
+//function prototype
 
-void test_code_pa5(void);
+void LED_MATRIX_INIT(void);
+
+void print_digit(uint8_t digit);
+
+
 
 #endif

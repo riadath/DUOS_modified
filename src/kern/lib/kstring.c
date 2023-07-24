@@ -63,7 +63,7 @@ void __reverse_str(uint8_t* buff)
 		tmp = buff[i];
 		buff[i]=buff[j];
 		buff[j]=tmp;
-		kprintf("%c %c %c\n", tmp,buff[i],buff[j]);
+		// kprintf("%c %c %c\n", tmp,buff[i],buff[j]);
 	}
 }
 
