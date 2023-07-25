@@ -40,8 +40,6 @@ void DRV_GPIO_INIT(GPIO_TypeDef* gpio)
   uint32_t offset = (uint32_t)gpio - base;
   uint32_t pos = offset / 0x400;
   RCC->AHB1ENR |= (1 << pos);
-  
-
 }
 void GPIO_Init(GPIO_TypeDef* gpio,GPIO_InitTypeDef *gpio_init)
 {
