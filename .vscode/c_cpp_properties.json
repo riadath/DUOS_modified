@@ -1,5 +1,4 @@
-{
-    "configurations": [
+{"configurations": [
         {
             "name": "Win32",
             "includePath": [
@@ -13,7 +12,7 @@
             "cStandard": "c17",
             "cppStandard": "gnu++17",
             "intelliSenseMode": "windows-gcc-x64",
-            "compilerPath": "C:\\Program Files (x86)\\Arm GNU Toolchain arm-none-eabi\\12.2 mpacbti-rel1\\bin\\arm-none-eabi-gcc.exe"
+            "compilerPath": "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/12.2 mpacbti-rel1/bin/arm-none-eabi-gcc.exe"
         }
     ],
     "version": 4

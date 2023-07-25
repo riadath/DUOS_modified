@@ -28,6 +28,7 @@
  * SUCH DAMAGE.
  */
 #include <gpio.h>
+
 void DRV_GPIO_INIT(GPIO_TypeDef* gpio)
 {
   /*

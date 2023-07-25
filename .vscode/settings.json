@@ -2,12 +2,6 @@
     //defaule terminal set to git bash
     "terminal.integrated.defaultProfile.windows": "Git Bash",
     "files.associations": {
-        "clock.h": "c",
-        "stm32_peps.h": "c",
-        "cm4.h": "c",
-        "syscall.h": "c",
-        "sys_init.h": "c",
-        "kstdio.h": "c",
         "gpio.h": "c"
     },
 }

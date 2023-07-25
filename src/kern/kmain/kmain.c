@@ -38,9 +38,7 @@
 #include <usart.h>
 #include <gpio.h>
 
-//led matrix 
-#include <led_matrix.h>
-
+#include <seven_segment.h>
 
 void kmain(void)
 {
@@ -48,8 +46,7 @@ void kmain(void)
 	__sys_init();
 	kprintf("____DRIVER CODE START____\n");
 	
-
-	LED_MATRIX_INIT();
+	module_init();
 	while(1){
 		kprintf("Enter a digit from 0-9 : ");
 		kscanf("%d",&digit);
