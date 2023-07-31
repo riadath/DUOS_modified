@@ -1,4 +1,0 @@
-{
-    "code-runner.customCommand": "cd ~/OneDrive/Documents/CODE_DRIVE/OS/DUOS_modified/src/compile && make flash_code",
-    "C_Cpp.intelliSenseEngineFallback": "disabled",
-}

@@ -40,6 +40,11 @@
 
 #include <seven_segment.h>
 
+/*
+	 * kmain() is the first kernel function to be called after
+ * the system is initialized. It is called by the assembly
+ * function __sys_init() in src\kern\sys_init\sys_init.s
+*/
 void kmain(void)
 {
 	uint8_t digit;
@@ -47,7 +52,6 @@ void kmain(void)
 	kprintf("____DRIVER CODE START____\n");
 	
 	module_init();
-	__SysTick_init(1000);
 	while(1){
 		kprintf("Enter a digit from 0-9 : ");
 		kscanf("%d",&digit);
