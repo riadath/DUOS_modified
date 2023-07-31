@@ -37,7 +37,6 @@
 #include <stdint.h>
 #include <usart.h>
 #include <gpio.h>
-
 #include <seven_segment.h>
 
 void kmain(void)
