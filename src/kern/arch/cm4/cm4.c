@@ -96,6 +96,13 @@ __attribute__((weak)) void SysTick_Handler()
     __mscount+=(SYSTICK->LOAD)/(PLL_N*1000);
 }
 
+__attribute__((weak)) void __delay_ms(uint32_t ms)
+{
+    uint32_t start = __getTime();
+    while((__getTime()-start)<ms);
+}
+
+
 void __enable_fpu()
 {
     SCB->CPACR |= ((0xF<<20));

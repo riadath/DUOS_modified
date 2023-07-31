@@ -209,6 +209,7 @@ __attribute__((weak)) void __sysTick_disable(void);
 __attribute__((weak)) uint32_t __getSysTickCount(void);
 __attribute__((weak)) void __updateSysTick(uint32_t) ;
 __attribute__((weak)) uint32_t __getTime(void);
+__attribute__((weak)) void __delay_ms(uint32_t);
 /**
 * Functions on FPU
 **/
