@@ -1,8 +1,0 @@
-{
-    //defaule terminal set to git bash
-    "terminal.integrated.defaultProfile.windows": "Git Bash",
-    "files.associations": {
-        "gpio.h": "c"
-    },
-    "code-runner.customCommand": "cd ~/OneDrive/Documents/CODE_DRIVE/OS/DUOS_modified/src/compile && make flash_code",
-}
