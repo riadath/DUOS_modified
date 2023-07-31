@@ -1,8 +1,10 @@
-{"configurations": [
+{
+    "configurations": [
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/src/kern/dev/include"
             ],
             "defines": [
                 "_DEBUG",

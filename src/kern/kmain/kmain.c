@@ -47,6 +47,7 @@ void kmain(void)
 	kprintf("____DRIVER CODE START____\n");
 	
 	module_init();
+	__SysTick_init(1000);
 	while(1){
 		kprintf("Enter a digit from 0-9 : ");
 		kscanf("%d",&digit);

@@ -44,7 +44,7 @@ void __sys_init(void)
 	__SysTick_init(10000);	//enable systick for 10ms
 	kprintf("\n************************************\r\n");
 	kprintf("Booting DUOS .....\r\n");
-	kprintf("Copyright (c) 2022, CSE, DU\r\n");
+	kprintf("Copyright (c) 2023, CSE, DU\r\n");
 	kprintf("CPUID %x\n", SCB->CPUID);
 	kprintf("OS Version: 1.0\n");
 	kprintf("Time Elapse %d ms\n",__getTime());
