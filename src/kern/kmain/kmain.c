@@ -41,6 +41,7 @@
 #include <seven_segment.h>
 
 /*
+	baler git
 	 * kmain() is the first kernel function to be called after
  * the system is initialized. It is called by the assembly
  * function __sys_init() in src\kern\sys_init\sys_init.s
