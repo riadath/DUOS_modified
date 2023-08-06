@@ -22,8 +22,8 @@
  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
  * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, W OTHERWISE) ARISIHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE ORNG IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
 
@@ -46,20 +46,24 @@
  * the system is initialized. It is called by the assembly
  * function __sys_init() in src\kern\sys_init\sys_init.s
 */
+
+
 void kmain(void)
 {
 	uint8_t digit;
 	__sys_init();
-	kprintf("____DRIVER CODE START____\n");
 	
 	module_init();
+	
 	while(1){
-		kprintf("Enter a digit from 0-9 : ");
+		kprintf(0,"Enter a digit from 0-9 : ");
 		kscanf("%d",&digit);
-		kprintf("input = %d\n",digit);
-		print_digit(digit);
+		kprintf(0,"input = %d\n",digit);
+		// print_digit(digit);
+		kprintf(1,"%d",digit);
 	}
 	
-	kprintf("____DRIVER CODE END____\n");
+
+	
 }
 

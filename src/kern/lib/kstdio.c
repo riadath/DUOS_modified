@@ -32,6 +32,7 @@
 #include <stm32_peps.h>
 #include <usart.h>
 #include <kstring.h>
+#include <seven_segment.h>
 /**
 * first argument define the type of string to kprintf and kscanf, 
 * %c for charater
@@ -42,7 +43,9 @@
 * %f for floating point number
 */
 // Simplified version of printf
-void kprintf(char *format,...)
+
+
+void kprintf(int mode,char *format,...)
 {
 //write your code here
 	char *tr;
@@ -52,6 +55,13 @@ void kprintf(char *format,...)
 	double dval;
 	//uint32_t *intval;
 	va_start(list,format);
+
+	if(mode == 1){
+		int to_print = va_arg(list,int);
+		print_digit(to_print);
+		return;
+	}
+
 	for(tr = format;*tr != '\0';tr++)
 	{
 		while(*tr != '%' && *tr!='\0')

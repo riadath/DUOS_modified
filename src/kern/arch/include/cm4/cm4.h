@@ -31,6 +31,7 @@
 #ifndef __CM4_H
 #define __CM4_H
 #include <stdint.h>
+
 /*
 * This file defines Cortex-M4 processor internal peripherals
 * NVIC, SCB, FPU and so on

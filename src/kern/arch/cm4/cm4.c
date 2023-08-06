@@ -62,7 +62,7 @@ __attribute__((weak)) void __sysTick_disable(void)
     if(!(SYSTICK->CTRL & ~(1<<0))) SYSTICK->CTRL &= ~(1<<0);
 }
 __attribute__((weak)) uint32_t __getSysTickCount(void)
-{
+{   
     return SYSTICK->VAL;
 }
 /************************************************************************************

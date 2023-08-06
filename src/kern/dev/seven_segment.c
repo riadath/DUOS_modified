@@ -14,17 +14,23 @@ uint32_t module_init(void){
 
 
 void print_digit(uint8_t digit){
-    for(uint8_t i = 0;i < 5;i++){
-        for(uint8_t i = 0;i < 7;i++){
-            GPIO_WritePin(pin_info_table[i].gpio,
-                pin_info_table[i].pin,digit_arr[digit][i]);
-        }
-        __delay_ms(300);
-        for(uint8_t i = 0;i < 7;i++){
-            GPIO_WritePin(pin_info_table[i].gpio,
-                pin_info_table[i].pin,0);
-        }
-        __delay_ms(300);
-
+    for(uint8_t i = 0;i < 7;i++){
+        GPIO_WritePin(pin_info_table[i].gpio,
+            pin_info_table[i].pin,digit_arr[digit][i]);
     }
+
+    //Blink the number
+    // for(uint8_t i = 0;i < 5;i++){
+    //     for(uint8_t i = 0;i < 7;i++){
+    //         GPIO_WritePin(pin_info_table[i].gpio,
+    //             pin_info_table[i].pin,digit_arr[digit][i]);
+    //     }
+    //     __delay_ms(100);
+    //     for(uint8_t i = 0;i < 7;i++){
+    //         GPIO_WritePin(pin_info_table[i].gpio,
+    //             pin_info_table[i].pin,0);
+    //     }
+    //     __delay_ms(300);
+
+    // }
 }
