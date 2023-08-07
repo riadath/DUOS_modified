@@ -38,14 +38,45 @@
 #include <usart.h>
 #include <gpio.h>
 
-#include <seven_segment.h>
+#include <stm32_peps.h>
 
-/*
-	baler git
-	 * kmain() is the first kernel function to be called after
- * the system is initialized. It is called by the assembly
- * function __sys_init() in src\kern\sys_init\sys_init.s
-*/
+
+//__NVIC_ functions, will be movied to separte file later
+/*____________START____________*/
+
+
+void __NVIC_EnableIRQn(enum IRQn_TypeDef IRQn){
+	
+}
+void __NVIC_DisableIRQn(enum IRQn_TypeDef IRQn){
+
+}
+
+void __NVIC_GetPriority(enum IRQn_TypeDef IRQn){
+
+}
+void __NVIC_SetPriority(enum IRQn_TypeDef IRQn,uint32_t priority){
+
+}
+
+void __set_BASEPRI(uint32_t value){
+
+}
+
+//mask all interrupts other than HardFault,NMI and reset
+void __disable_irq(){
+
+}
+//unmask(enable) all interrupt
+void __enable_irq(){
+
+}
+
+
+
+/*_____________END____________*/
+
+
 
 
 void kmain(void)
@@ -53,17 +84,19 @@ void kmain(void)
 	uint8_t digit;
 	__sys_init();
 	
-	module_init();
-	
-	while(1){
-		kprintf(0,"Enter a digit from 0-9 : ");
-		kscanf("%d",&digit);
-		kprintf(0,"input = %d\n",digit);
-		print_digit(digit);
-		// kprintf(1,"%d",digit);
-	}
-	
+	GPIO_InitTypeDef gpio_init;
+	gpio_init.Mode = GPIO_MODE_OUTPUT_PP;
+	gpio_init.Pin |= GPIO_PIN_5;
+	gpio_init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_Init(GPIOA,&gpio_init);
 
-	
+	while(1){
+		GPIO_WritePin(GPIOA,5,GPIO_PIN_SET);
+		__delay_ms(100);
+		GPIO_WritePin(GPIOA,5,GPIO_PIN_RESET);
+		__delay_ms(200);
+
+		// kprintf(0,"%d",digit);
+	}
 }
 

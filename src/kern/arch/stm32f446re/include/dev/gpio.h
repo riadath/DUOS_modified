@@ -1216,6 +1216,7 @@ void GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin);
 
 uint8_t GPIO_IDR_Status(GPIO_TypeDef* gpio,uint16_t pin);
 
+void DRV_GPIO_INIT(GPIO_TypeDef* gpio);
 #ifdef __cplusplus
 }
 #endif

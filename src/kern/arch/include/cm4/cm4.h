@@ -32,6 +32,7 @@
 #define __CM4_H
 #include <stdint.h>
 
+
 /*
 * This file defines Cortex-M4 processor internal peripherals
 * NVIC, SCB, FPU and so on
@@ -39,6 +40,7 @@
 #define SYSTICK ((SYSTICK_TypeDef*)0xE000E010)
 #define NVIC ((NVIC_TypeDef*)0xE000E100)
 #define SCB ((SCB_TypeDef*) 0xE000ED00)
+
 /*
 * Data structure for SCB
 */
