@@ -30,10 +30,16 @@
  
 #ifndef __STM32_PEPS_H
 #define __STM32_PEPS_H
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
-#define PWR	((PWR_TypeDef *)0x40007000)
+#define PWR	    ((PWR_TypeDef *)0x40007000)
 #define FLASH	((FLASH_TypeDef *)0x40023C00)
 #define RCC 	((RCC_TypeDef *)0x40023800)
+#define SYSCFG  ((SYSCFG_TypeDef *)0x40013800)
+#define EXTI    ((EXTI_TypeDef *)0x40013C00)
 /**
 * Define GPIOx Port
 **/
@@ -45,7 +51,6 @@
 #define GPIOF 	((GPIO_TypeDef *)0x40021400)
 #define GPIOG 	((GPIO_TypeDef *)0x40021800)
 #define GPIOH 	((GPIO_TypeDef *)0x40021C00)
-
 /**
 * Define USARTx
 **/
@@ -191,10 +196,9 @@ uint32_t volatile IDR; /* Offset: 0x10 (R/W) Input Data Register */
 uint32_t volatile ODR; /* Offset: 0x14 (R/W) Output Data Register */
 uint32_t volatile BSRR; /* Offset: 0x18 (R/W) Bit Set/Reset Register */
 uint32_t volatile LCKR; /* Offset: 0x1C (R/W) Configuration Lock Register */
-uint32_t volatile AFRL; /* Offset: 0x20 (R/W) Alternate Function Low Register */
-uint32_t volatile AFRH; /* Offset: 0x24 (R/W) Alternate Function High Register */
+uint32_t volatile AFR[2]; /* Offset: 0x20 (R/W) Alternate Function Low Register */
+//uint32_t volatile AFRH; /* Offset: 0x24 (R/W) Alternate Function High Register */
 } GPIO_TypeDef;
-
 
 /*
 * Data Structure for USART
@@ -239,29 +243,30 @@ uint32_t volatile DMAR; /* Offset: 0x4C (R/W) TIM1&TIM8 DMA address for full tra
 uint32_t volatile OR;   /*!< TIM option register, Address offset: 0x50 */
 } TIM_TypeDef;
 
-/**More GPIO Preprcoessors and Structs added*/
-
-/**
-    GPIOx Modes
-*/
-#define GPIO_MODE_INPUT 	0x00
-#define GPIO_MODE_OUTPUT 	0x01
-#define GPIO_MODE_AF 		0x02
-#define GPIO_MODE_ANALOG 	0x03
+typedef struct
+{
+ uint32_t volatile MEMRMP;       /*!< SYSCFG memory remap register,                      Address offset: 0x00      */
+ uint32_t volatile PMC;          /*!< SYSCFG peripheral mode configuration register,     Address offset: 0x04      */
+ uint32_t volatile EXTICR[4];    /*!< SYSCFG external interrupt configuration registers, Address offset: 0x08-0x14 */
+ uint32_t      RESERVED[2];      /*!< Reserved, 0x18-0x1C                                                          */
+ uint32_t volatile CMPCR;        /*!< SYSCFG Compensation cell control register,         Address offset: 0x20      */
+ uint32_t      RESERVED1[2];     /*!< Reserved, 0x24-0x28                                                          */
+ uint32_t volatile CFGR;         /*!< SYSCFG Configuration register,                     Address offset: 0x2C      */
+} SYSCFG_TypeDef;
 
 typedef struct
 {
-  uint32_t Pin;       /*!< Specifies the GPIO pins to be configured.
-                           This parameter can be any value of @ref GPIO_pins_define */
-  uint32_t Mode;      /*!< Specifies the operating mode for the selected pins.
-                           This parameter can be a value of @ref GPIO_mode_define */
-  uint32_t Pull;      /*!< Specifies the Pull-up or Pull-Down activation for the selected pins.
-                           This parameter can be a value of @ref GPIO_pull_define */
-  uint32_t Speed;     /*!< Specifies the speed for the selected pins.
-                           This parameter can be a value of @ref GPIO_speed_define */
-  uint32_t Alternate;  /*!< Peripheral to be connected to the selected pins. 
-                            This parameter can be a value of @ref GPIO_Alternate_function_selection */
-}GPIO_InitTypeDef;
+ uint32_t volatile IMR;    /*!< EXTI Interrupt mask register,            Address offset: 0x00 */
+ uint32_t volatile EMR;    /*!< EXTI Event mask register,                Address offset: 0x04 */
+ uint32_t volatile RTSR;   /*!< EXTI Rising trigger selection register,  Address offset: 0x08 */
+ uint32_t volatile FTSR;   /*!< EXTI Falling trigger selection register, Address offset: 0x0C */
+ uint32_t volatile SWIER;  /*!< EXTI Software interrupt event register,  Address offset: 0x10 */
+ uint32_t volatile PR;     /*!< EXTI Pending register,                   Address offset: 0x14 */
+} EXTI_TypeDef;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

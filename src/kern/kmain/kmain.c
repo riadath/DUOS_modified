@@ -59,8 +59,8 @@ void kmain(void)
 		kprintf(0,"Enter a digit from 0-9 : ");
 		kscanf("%d",&digit);
 		kprintf(0,"input = %d\n",digit);
-		// print_digit(digit);
-		kprintf(1,"%d",digit);
+		print_digit(digit);
+		// kprintf(1,"%d",digit);
 	}
 	
 

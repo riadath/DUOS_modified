@@ -7,7 +7,7 @@ TARGET = target
 FPU = -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 OBJECT = object
 USERLAND = ../userland
-INCLUDE=-I$(TOP)/arch/include -I$(TOP)/dev/include -I$(TOP)/arch/$(MCU)/include -I$(TOP)/include -I$(TOP)/include/kern -I$(TOP)/arch/$(MCU)/include -I$(TOP)/arch/$(MCU)/include/dev -I$(TOP)/arch/include/cm4 -I$(TOP)/arch/$(MCU)/include/sys -I$(USERLAND)/include 
+INCLUDE=-I$(TOP)/arch/include -I$(TOP)/dev/include -I$(TOP)/arch/$(MCU)/include -I$(TOP)/include -I$(TOP)/include/kern -I$(TOP)/arch/$(MCU)/include -I$(TOP)/arch/$(MCU)/include/dev -I$(TOP)/arch/include/cm4 -I$(TOP)/arch/$(MCU)/include/sys -I$(USERLAND)/include -I$(TOP)/arch/$(MCU)/include/utilities
 MAPDIR = mapfiles
 CFLAGS=-c -mcpu=$(MACH) -mthumb $(FPU) -std=gnu11 -Wall -O0
 LDFLAGS = -nostdlib -nostartfiles -nodefaultlibs -fno-exceptions  -mcpu=$(MACH) -mthumb $(FPU) -T $(TOP)/arch/$(MCU)/linker/linker.ld -Wl,-Map=$(MAPDIR)/duos.map -O0
