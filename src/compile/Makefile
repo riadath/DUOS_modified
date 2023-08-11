@@ -7,12 +7,18 @@ TARGET = target
 FPU = -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 OBJECT = object
 USERLAND = ../userland
-INCLUDE=-I$(TOP)/arch/include -I$(TOP)/dev/include -I$(TOP)/arch/$(MCU)/include -I$(TOP)/include -I$(TOP)/include/kern -I$(TOP)/arch/$(MCU)/include -I$(TOP)/arch/$(MCU)/include/dev -I$(TOP)/arch/include/cm4 -I$(TOP)/arch/$(MCU)/include/sys -I$(USERLAND)/include -I$(TOP)/arch/$(MCU)/include/utilities
+INCLUDE=-I$(TOP)/arch/include -I$(TOP)/dev/include -I$(TOP)/arch/$(MCU)/include -I$(TOP)/include -I$(TOP)/include/kern -I$(TOP)/arch/$(MCU)/include -I$(TOP)/arch/$(MCU)/include/dev -I$(TOP)/arch/include/cm4 -I$(TOP)/arch/$(MCU)/include/sys -I$(USERLAND)/include -I$(TOP)/arch/$(MCU)/include/utilities -I$(TOP)/include/testprog
 MAPDIR = mapfiles
 CFLAGS=-c -mcpu=$(MACH) -mthumb $(FPU) -std=gnu11 -Wall -O0
 LDFLAGS = -nostdlib -nostartfiles -nodefaultlibs -fno-exceptions  -mcpu=$(MACH) -mthumb $(FPU) -T $(TOP)/arch/$(MCU)/linker/linker.ld -Wl,-Map=$(MAPDIR)/duos.map -O0
 .PHONY: all clean load
-all: kstring.o kmath.o cm4.o kfloat.o clock.o usart.o gpio.o timer.o kmain.o kstdio.o stm32_startup.o sys_init.o unistd.o times.o kunistd.o ktimes.o syscall.o seven_segment.o duos
+all: kstring.o kmath.o cm4.o kfloat.o clock.o usart.o gpio.o timer.o kmain.o kstdio.o stm32_startup.o sys_init.o unistd.o times.o kunistd.o ktimes.o syscall.o seven_segment.o sys.o test_interrupt.o duos
+# sys.c and test_interrupt.c
+
+sys.o: $(TOP)/arch/$(MCU)/sys/sys.c
+	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+test_interrupt.o: $(TOP)/lib/testprog/test_interrupt.c
+	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
 # compiling seven segment driver
 seven_segment.o: $(TOP)/dev/seven_segment.c
@@ -69,7 +75,7 @@ times.o: $(USERLAND)/utils/times.c
 syscall.o: $(TOP)/syscall/syscall.c
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
-duos: $(OBJECT)/kmath.o $(OBJECT)/kfloat.o  $(OBJECT)/cm4.o $(OBJECT)/kstring.o $(OBJECT)/kmain.o $(OBJECT)/stm32_startup.o $(OBJECT)/clock.o $(OBJECT)/usart.o $(OBJECT)/gpio.o $(OBJECT)/timer.o $(OBJECT)/kstdio.o $(OBJECT)/sys_init.o $(OBJECT)/unistd.o $(OBJECT)/times.o $(OBJECT)/kunistd.o $(OBJECT)/ktimes.o $(OBJECT)/syscall.o $(OBJECT)/seven_segment.o
+duos: $(OBJECT)/kmath.o $(OBJECT)/kfloat.o  $(OBJECT)/cm4.o $(OBJECT)/kstring.o $(OBJECT)/kmain.o $(OBJECT)/stm32_startup.o $(OBJECT)/clock.o $(OBJECT)/usart.o $(OBJECT)/gpio.o $(OBJECT)/timer.o $(OBJECT)/kstdio.o $(OBJECT)/sys_init.o $(OBJECT)/unistd.o $(OBJECT)/times.o $(OBJECT)/kunistd.o $(OBJECT)/ktimes.o $(OBJECT)/syscall.o $(OBJECT)/seven_segment.o $(OBJECT)/sys.o $(OBJECT)/test_interrupt.o
 	$(CC) $(LDFLAGS) $^ -o $(TARGET)/$@
 
 clean:

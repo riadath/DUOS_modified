@@ -39,64 +39,38 @@
 #include <gpio.h>
 
 #include <stm32_peps.h>
+#include <sys.h>
 
 
-//__NVIC_ functions, will be movied to separte file later
-/*____________START____________*/
 
-
-void __NVIC_EnableIRQn(enum IRQn_TypeDef IRQn){
-	
-}
-void __NVIC_DisableIRQn(enum IRQn_TypeDef IRQn){
+void test_interrupt(void){
 
 }
 
-void __NVIC_GetPriority(enum IRQn_TypeDef IRQn){
-
-}
-void __NVIC_SetPriority(enum IRQn_TypeDef IRQn,uint32_t priority){
-
-}
-
-void __set_BASEPRI(uint32_t value){
-
-}
-
-//mask all interrupts other than HardFault,NMI and reset
-void __disable_irq(){
-
-}
-//unmask(enable) all interrupt
-void __enable_irq(){
-
-}
-
-
-
-/*_____________END____________*/
-
-
-
-
-void kmain(void)
-{
-	uint8_t digit;
-	__sys_init();
-	
+void blinky_init(){
 	GPIO_InitTypeDef gpio_init;
 	gpio_init.Mode = GPIO_MODE_OUTPUT_PP;
 	gpio_init.Pin |= GPIO_PIN_5;
-	gpio_init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	gpio_init.Speed = GPIO_SPEED_FREQ_MEDIUM;
+	gpio_init.Pull = 0;
 	GPIO_Init(GPIOA,&gpio_init);
+}
 
+void on_off(uint32_t delay_ms){
+	GPIO_WritePin(GPIOA,5,GPIO_PIN_SET);
+	__delay_ms(delay_ms);
+	GPIO_WritePin(GPIOA,5,GPIO_PIN_RESET);
+	__delay_ms(delay_ms);
+}
+void kmain(void)
+{
+	__sys_init();
+	
+	// __NVIC_DisableIRQn(SysTick_IRQn);
+	// __disable_fault_irq();
 	while(1){
-		GPIO_WritePin(GPIOA,5,GPIO_PIN_SET);
-		__delay_ms(100);
-		GPIO_WritePin(GPIOA,5,GPIO_PIN_RESET);
-		__delay_ms(200);
-
-		// kprintf(0,"%d",digit);
+		kprintf(0,"kaj kortese?\n");
+		__delay_ms(1000);
 	}
 }
 
