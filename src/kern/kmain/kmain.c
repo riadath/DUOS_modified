@@ -44,6 +44,8 @@
 #include <sys.h> // ALL NVIC related functions
 #include <test_interrupt.h> // test interrupt function
 
+static uint32_t GLOBAL_COUNT = 0;
+
 void EXTI0_GPIO_Config(GPIO_TypeDef* gpio,uint16_t pin){
 	GPIO_InitTypeDef gpio_init;
 	gpio_init.Mode = GPIO_MODE_INPUT;
@@ -69,7 +71,8 @@ __attribute__((weak)) void EXTI0_Handler(void){
 	//clear pending bit
 	if(EXTI->PR & (1<<0)){
 		EXTI->PR |= 1<<0;
-		kprintf("EXTI0 interrupt occured\n");
+		kprintf("EXTI0 interrupt occured,%dth time\n",GLOBAL_COUNT);
+		GLOBAL_COUNT += 1;
 	}
 }
 
