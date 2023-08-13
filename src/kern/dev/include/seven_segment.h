@@ -27,6 +27,8 @@ static uint8_t digit_arr[10][7] = {
     {1,1,1,1,0,1,1}  //9
 };
 
+static GPIO_InitTypeDef gpio_init;
+
 uint32_t module_init(void);
 void module_exit(void);
 void print_digit(uint8_t digit);

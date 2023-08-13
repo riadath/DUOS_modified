@@ -37,40 +37,41 @@
 #include <stdint.h>
 #include <usart.h>
 #include <gpio.h>
-
 #include <stm32_peps.h>
-#include <sys.h>
 
 
+//new includes for assignment 2
+#include <sys.h> // ALL NVIC related functions
+#include <test_interrupt.h> // test interrupt function
 
-void test_interrupt(void){
+
+void EXTI0_Init(void){
+	RCC->APB2ENR |= 1<<14; //enable SYSCFG clock
+	SYSCFG->EXTICR[0] &= ~(0x000F<<0); //select PA0 as source of EXTI0
+	EXTI->IMR |= 1<<0; //unmask EXTI0
+	EXTI->RTSR |= 1<<0; //select rising edge trigger
+	EXTI->FTSR &= ~(1<<0); //disable falling edge trigger
+	__NVIC_EnableIRQn(EXTI0_IRQn); //enable EXTI0 interrupt
+	__NVIC_SetPriority(EXTI0_IRQn, 2); //set priority to 2
+}
+
+
+__attribute__((weak)) void EXTI0_Handler(void){
+	//clear pending bit
+	if(EXTI->PR & (1<<0)){
+		EXTI->PR |= 1<<0;
+		kprintf("EXTI0 interrupt occured\n");
+	}
+
 
 }
 
-void blinky_init(){
-	GPIO_InitTypeDef gpio_init;
-	gpio_init.Mode = GPIO_MODE_OUTPUT_PP;
-	gpio_init.Pin |= GPIO_PIN_5;
-	gpio_init.Speed = GPIO_SPEED_FREQ_MEDIUM;
-	gpio_init.Pull = 0;
-	GPIO_Init(GPIOA,&gpio_init);
-}
 
-void on_off(uint32_t delay_ms){
-	GPIO_WritePin(GPIOA,5,GPIO_PIN_SET);
-	__delay_ms(delay_ms);
-	GPIO_WritePin(GPIOA,5,GPIO_PIN_RESET);
-	__delay_ms(delay_ms);
-}
+
 void kmain(void)
 {
 	__sys_init();
 	
-	// __NVIC_DisableIRQn(SysTick_IRQn);
-	// __disable_fault_irq();
-	while(1){
-		kprintf(0,"kaj kortese?\n");
-		__delay_ms(1000);
-	}
+	
 }
 

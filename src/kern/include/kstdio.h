@@ -33,7 +33,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 
-void kprintf(int mode,char*,...); 
+void kprintf(char*,...); 
 void kscanf(char*,...);
 uint8_t strcomp(uint8_t*,uint8_t*);
 #endif /* KSTDIO */

@@ -45,7 +45,7 @@
 // Simplified version of printf
 
 
-void kprintf(int mode,char *format,...)
+void kprintf(char *format,...)
 {
 //write your code here
 	char *tr;
@@ -55,12 +55,6 @@ void kprintf(int mode,char *format,...)
 	double dval;
 	//uint32_t *intval;
 	va_start(list,format);
-
-	if(mode == 1){
-		int to_print = va_arg(list,int);
-		print_digit(to_print);
-		return;
-	}
 
 	for(tr = format;*tr != '\0';tr++)
 	{

@@ -42,13 +42,13 @@ void __sys_init(void)
 	DRV_USART_INIT(USART2); //configure as standard input and output 
 	__enable_fpu(); //enable FPU single precision floating point unit
 	__SysTick_init(10000);	//enable systick for 10ms
-	kprintf(0,"\n************************************\r\n");
-	kprintf(0,"Booting DUOS .....\r\n");
-	kprintf(0,"Copyright (c) 2023, CSE, DU\r\n");
-	kprintf(0,"CPUID %x\n", SCB->CPUID);
-	kprintf(0,"OS Version: 1.0\n");
-	kprintf(0,"Time Elapse %d ms\n",__getTime());
-	kprintf(0,"Wellcome ....\r\n");
-	kprintf(0,"*************************************\r\n");
-	kprintf(0,"# ");
+	kprintf("\n************************************\r\n");
+	kprintf("Booting DUOS .....\r\n");
+	kprintf("Copyright (c) 2023, CSE, DU\r\n");
+	kprintf("CPUID %x\n", SCB->CPUID);
+	kprintf("OS Version: 1.0\n");
+	kprintf("Time Elapse %d ms\n",__getTime());
+	kprintf("Wellcome ....\r\n");
+	kprintf("*************************************\r\n");
+	kprintf("# ");
 }
