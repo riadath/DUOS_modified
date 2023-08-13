@@ -44,6 +44,15 @@
 #include <sys.h> // ALL NVIC related functions
 #include <test_interrupt.h> // test interrupt function
 
+void EXTI0_GPIO_Config(GPIO_TypeDef* gpio,uint16_t pin){
+	GPIO_InitTypeDef gpio_init;
+	gpio_init.Mode = GPIO_MODE_INPUT;
+	gpio_init.Pull = GPIO_PULLUP;
+	gpio_init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+	gpio_init.Pin = 1 << pin;
+
+	GPIO_Init(gpio,&gpio_init);
+}
 
 void EXTI0_Init(void){
 	RCC->APB2ENR |= 1<<14; //enable SYSCFG clock
@@ -62,8 +71,6 @@ __attribute__((weak)) void EXTI0_Handler(void){
 		EXTI->PR |= 1<<0;
 		kprintf("EXTI0 interrupt occured\n");
 	}
-
-
 }
 
 
@@ -71,7 +78,10 @@ __attribute__((weak)) void EXTI0_Handler(void){
 void kmain(void)
 {
 	__sys_init();
-	
-	
+	EXTI0_GPIO_Config(GPIOA,0);
+	EXTI0_Init();
+	while(1){
+
+	}
 }
 
