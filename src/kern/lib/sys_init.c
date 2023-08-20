@@ -50,5 +50,4 @@ void __sys_init(void)
 	kprintf("Time Elapse %d ms\n",__getTime());
 	kprintf("Wellcome ....\r\n");
 	kprintf("*************************************\r\n");
-	kprintf("# ");
 }
