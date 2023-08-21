@@ -50,11 +50,13 @@ void __unset_BASEPRI(){
 }
 
 void __set_PRIMASK(uint32_t priMask){
-    asm("mov r0, %0" : "=r" (priMask));
-    asm("msr primask, r0");
+    __asm("mov r0, %[priMask]" 
+    : [priMask] "=r" (priMask)
+    );
+    __asm("msr primask, r0");
 }
 
-uint32_t get_PRIMASK(void){
+uint32_t __get_PRIMASK(void){
     uint32_t value;
     asm("mrs r0,primask");
     asm("mov %0,r0":"=r"(value));
@@ -62,17 +64,17 @@ uint32_t get_PRIMASK(void){
 }
 
 void __enable_fault_irq(void){
-    asm("mov r0, #0");
+    asm("mov r0, #1");
     asm("msr primask, r0");
 }
 
 void __disable_fault_irq(void){
-    asm("mov r0, #1");
+    asm("mov r0, #0");
     asm("msr primask, r0");
 }
 
 void __set_FAULTMASK(uint32_t faultMask){
-    asm("mov r0, #1");
+    asm("mov r0, %0" : "=r" (faultMask));
     asm("msr primask, r0");
 }
 

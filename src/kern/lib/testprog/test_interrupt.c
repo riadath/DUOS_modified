@@ -27,21 +27,22 @@ void test_set_get_priority(void){
 }
 
 void test_enable_disable(void){
-	kprintf("Testing enable disable\n");
 	//testing enable disable with exti0
+	kprintf("Testing enable disable\n");
 	EXTI_GPIO_Config(GPIOA,0);
-	EXTI_GPIO_Config(GPIOA,1);
 	EXTI0_Init();
-	EXTI1_Init();
-	// __disable_irq();
-	// __enable_irq();
+	// __NVIC_DisableIRQn(EXTI0_IRQn);
+	// __NVIC_EnableIRQn(EXTI0_IRQn);
+
+	kprintf("primask : %d\n",__get_PRIMASK());
 	blinky_test_code();
 	
 }
 
 
 void test_masking(void){
-	//
+	//set fault mask
+	ena();
 	blinky_test_code();
 }
 

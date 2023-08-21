@@ -52,7 +52,7 @@ __attribute__((weak)) void EXTI0_Handler(void){
 	//clear pending bit
 	if(EXTI->PR & (1<<0)){
 		EXTI->PR |= 1<<0;
-		kprintf("EXTI ______0______ interrupt occured,%dth time\n",GLOBAL_COUNT_EXTI0);
+		kprintf("EXTI ______0______ interrupt ,%dth time\n",GLOBAL_COUNT_EXTI0);
 		GLOBAL_COUNT_EXTI0 += 1;
 	}
 }
@@ -61,7 +61,7 @@ __attribute__((weak)) void EXTI1_Handler(void){
 	//clear pending bit
 	if(EXTI->PR & (1<<1)){
 		EXTI->PR |= 1<<1;
-		kprintf("EXTI ______1______ interrupt occured,%dth time\n",GLOBAL_COUNT_EXTI1);
+		kprintf("EXTI ______1______ interrupt ,%dth time\n",GLOBAL_COUNT_EXTI1);
 		GLOBAL_COUNT_EXTI1 += 1;
 	}
 }
@@ -78,6 +78,8 @@ void kmain(void)
 	// test_set_get_priority();
 	
 	// test_enable_disable();
+
+	test_masking();
 	
 }
 
