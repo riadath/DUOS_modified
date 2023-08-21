@@ -42,7 +42,7 @@ void test_enable_disable(void){
 
 void test_masking(void){
 	//set fault mask
-	ena();
+	__enable_fault_irq();
 	blinky_test_code();
 }
 
