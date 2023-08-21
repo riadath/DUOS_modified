@@ -48,3 +48,9 @@ void test_masking(void){
 }
 
 
+void test_hardfault(void){
+	//read an address 0x20CDCDCD
+	uint32_t *ptr = (uint32_t *)0x20CDCDCD;
+	uint32_t val = *ptr;
+	kprintf("val : %d\n",val);
+}

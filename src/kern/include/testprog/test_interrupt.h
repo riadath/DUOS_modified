@@ -13,5 +13,6 @@ void blinky_test_code(void);
 void test_set_get_priority(void);
 void test_enable_disable(void);
 void test_masking(void);
+void test_hardfault(void);
 
 #endif

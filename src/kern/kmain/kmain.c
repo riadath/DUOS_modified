@@ -67,6 +67,12 @@ __attribute__((weak)) void EXTI1_Handler(void){
 }
 
 
+//implement hardfault handler
+__attribute__((weak)) void HardFault_Handler(void){
+	kprintf("HardFault_Handler\n");
+	while(1);
+}
+
 void kmain(void)
 {
 	__sys_init();
@@ -79,7 +85,9 @@ void kmain(void)
 	
 	// test_enable_disable();
 
-	test_masking();
+	// test_masking();
+	
+	// test_hardfault();
 	
 }
 
