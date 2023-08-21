@@ -40,49 +40,28 @@
 #include <stm32_peps.h>
 
 //new includes for assignment 2
-#include <sys.h> // ALL NVIC related functions
+#include <sys.h> // EXTI Config
+#include <nvic.h>
 #include <test_interrupt.h> // test interrupt function
 
-static uint32_t GLOBAL_COUNT = 0;
-extern uint32_t _stext;
-extern uint32_t _etext;
-extern uint32_t _sdata;
-extern uint32_t _edata;
-extern uint32_t _sbss;
-extern uint32_t _ebss;
-extern uint32_t _la_data;
-
-
-
-
-void EXTI0_GPIO_Config(GPIO_TypeDef* gpio,uint16_t pin){
-	GPIO_InitTypeDef gpio_init;
-	gpio_init.Mode = GPIO_MODE_INPUT;
-	gpio_init.Pull = GPIO_PULLUP;
-	gpio_init.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-	gpio_init.Pin = 1 << pin;
-
-	GPIO_Init(gpio,&gpio_init);
-}
-
-void EXTI0_Init(void){
-	RCC->APB2ENR |= 1<<14; //enable SYSCFG clock
-	SYSCFG->EXTICR[0] &= ~(0x000F<<0); //select PA0 as source of EXTI0
-	EXTI->IMR |= 1<<0; //unmask EXTI0
-	EXTI->RTSR &= ~(1<<0); //select rising edge trigger
-	EXTI->FTSR |= (1<<0); //disable falling edge trigger
-	__NVIC_EnableIRQn(EXTI0_IRQn); //enable EXTI0 interrupt
-	__NVIC_SetPriority(EXTI0_IRQn, 2); //set priority to 2
-}
-
+static uint32_t GLOBAL_COUNT_EXTI0 = 0;
+static uint32_t GLOBAL_COUNT_EXTI1 = 0;
 
 __attribute__((weak)) void EXTI0_Handler(void){
 	//clear pending bit
 	if(EXTI->PR & (1<<0)){
 		EXTI->PR |= 1<<0;
-		kprintf("EXTI0 interrupt occured,%dth time\n",GLOBAL_COUNT);
-		GLOBAL_COUNT += 1;
-		reboot();
+		kprintf("EXTI ______0______ interrupt ,%dth time\n",GLOBAL_COUNT_EXTI0);
+		GLOBAL_COUNT_EXTI0 += 1;
+	}
+}
+
+__attribute__((weak)) void EXTI1_Handler(void){
+	//clear pending bit
+	if(EXTI->PR & (1<<1)){
+		EXTI->PR |= 1<<1;
+		kprintf("EXTI ______1______ interrupt ,%dth time\n",GLOBAL_COUNT_EXTI1);
+		GLOBAL_COUNT_EXTI1 += 1;
 	}
 }
 
@@ -100,18 +79,27 @@ void reboot(void){
 	}
 }
 
-void configuration(void){
-	__sys_init();
-	EXTI0_GPIO_Config(GPIOA,0);
-	EXTI0_Init();
+//implement hardfault handler
+__attribute__((weak)) void HardFault_Handler(void){
+	kprintf("HardFault_Handler\n");
+	while(1);
 }
 
 void kmain(void)
 {
+	__sys_init();
+	EXTI_GPIO_Config(GPIOA,0);
+	EXTI_GPIO_Config(GPIOA,1);
+	EXTI0_Init();
+	EXTI1_Init();
+	blinky_test_code();
+	// test_set_get_priority();
+	
+	// test_enable_disable();
 
-	configuration();
-	while(1){
-		
-	}
+	// test_masking();
+
+	// test_hardfault();
+	
 }
 

@@ -29,6 +29,7 @@
  */
  
 #include <stm32_startup.h>
+
 void Reset_Handler(void){
 	uint32_t size = (uint32_t)&_edata - (uint32_t)&_sdata;
 	uint8_t *pDst = (uint8_t*)&_sdata;
@@ -49,12 +50,14 @@ void Reset_Handler(void){
 void Default_Handler(void){
 	while(1);
 }
-//2. implement the fault handlers
-void HardFault_Handler(void)
-{
-//	printf("Exception : Hardfault\n");
-	while(1);
-}
+
+// //2. implement the fault handlers
+// void HardFault_Handler(void)
+// {
+// //	printf("Exception : Hardfault\n");
+// 	while(1){
+// 	}
+// }
 
 
 void MemManage_Handler(void)
