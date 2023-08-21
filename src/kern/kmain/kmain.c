@@ -70,17 +70,14 @@ __attribute__((weak)) void EXTI1_Handler(void){
 void kmain(void)
 {
 	__sys_init();
-	EXTI_GPIO_Config(GPIOA,0);
-	EXTI_GPIO_Config(GPIOA,1);
-	EXTI0_Init();
-	EXTI1_Init();
+	// EXTI_GPIO_Config(GPIOA,0);
+	// EXTI_GPIO_Config(GPIOA,1);
+	// EXTI0_Init();
+	// EXTI1_Init();
 
-	for(uint8_t iprio = 0;iprio < 240;iprio++){
-		__NVIC_SetPriority(,iprio);
-		kprintf("EXTI0_IRQn %d\n",(uint8_t)__NVIC_GetPriority(EXTI0_IRQn));
-	}
-	while(1){
-
-	}
+	// test_set_get_priority();
+	
+	// test_enable_disable();
+	
 }
 
