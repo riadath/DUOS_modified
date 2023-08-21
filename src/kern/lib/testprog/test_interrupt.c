@@ -33,7 +33,7 @@ void test_enable_disable(void){
 	EXTI0_Init();
 	// __NVIC_DisableIRQn(EXTI0_IRQn);
 	// __NVIC_EnableIRQn(EXTI0_IRQn);
-
+	__set_PRIMASK(0);
 	kprintf("primask : %d\n",__get_PRIMASK());
 	blinky_test_code();
 	
@@ -42,7 +42,8 @@ void test_enable_disable(void){
 
 void test_masking(void){
 	//set fault mask
-	__enable_fault_irq();
+	__set_FAULTMASK(0);
+	kprintf("fault mask : %d\n",__get_FAULTMASK());
 	blinky_test_code();
 }
 
