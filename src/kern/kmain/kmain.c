@@ -76,17 +76,17 @@ __attribute__((weak)) void HardFault_Handler(void){
 void kmain(void)
 {
 	__sys_init();
-	// EXTI_GPIO_Config(GPIOA,0);
-	// EXTI_GPIO_Config(GPIOA,1);
-	// EXTI0_Init();
-	// EXTI1_Init();
-
+	EXTI_GPIO_Config(GPIOA,0);
+	EXTI_GPIO_Config(GPIOA,1);
+	EXTI0_Init();
+	EXTI1_Init();
+	blinky_test_code();
 	// test_set_get_priority();
 	
 	// test_enable_disable();
 
 	// test_masking();
-	
+
 	// test_hardfault();
 	
 }
