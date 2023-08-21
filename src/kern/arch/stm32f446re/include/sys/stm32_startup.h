@@ -48,8 +48,8 @@ extern uint32_t _ebss;
 extern uint32_t _la_data;
 
 volatile uint32_t _bss_size=0;
-volatile uint32_t _data_size=0;
 volatile uint32_t _text_size=0;
+volatile uint32_t _data_size=0;
 
 void Reset_Handler(void) __attribute__((weak));
 void NMI_Handler(void) __attribute__((weak, alias("Default_Handler")));

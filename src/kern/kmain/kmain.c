@@ -39,12 +39,21 @@
 #include <gpio.h>
 #include <stm32_peps.h>
 
-
 //new includes for assignment 2
 #include <sys.h> // ALL NVIC related functions
 #include <test_interrupt.h> // test interrupt function
 
 static uint32_t GLOBAL_COUNT = 0;
+extern uint32_t _stext;
+extern uint32_t _etext;
+extern uint32_t _sdata;
+extern uint32_t _edata;
+extern uint32_t _sbss;
+extern uint32_t _ebss;
+extern uint32_t _la_data;
+
+
+
 
 void EXTI0_GPIO_Config(GPIO_TypeDef* gpio,uint16_t pin){
 	GPIO_InitTypeDef gpio_init;
@@ -60,8 +69,8 @@ void EXTI0_Init(void){
 	RCC->APB2ENR |= 1<<14; //enable SYSCFG clock
 	SYSCFG->EXTICR[0] &= ~(0x000F<<0); //select PA0 as source of EXTI0
 	EXTI->IMR |= 1<<0; //unmask EXTI0
-	EXTI->RTSR |= 1<<0; //select rising edge trigger
-	EXTI->FTSR &= ~(1<<0); //disable falling edge trigger
+	EXTI->RTSR &= ~(1<<0); //select rising edge trigger
+	EXTI->FTSR |= (1<<0); //disable falling edge trigger
 	__NVIC_EnableIRQn(EXTI0_IRQn); //enable EXTI0 interrupt
 	__NVIC_SetPriority(EXTI0_IRQn, 2); //set priority to 2
 }
@@ -73,18 +82,36 @@ __attribute__((weak)) void EXTI0_Handler(void){
 		EXTI->PR |= 1<<0;
 		kprintf("EXTI0 interrupt occured,%dth time\n",GLOBAL_COUNT);
 		GLOBAL_COUNT += 1;
+		reboot();
 	}
 }
 
+void reboot(void){
+	uint32_t size = (uint32_t)&_edata - (uint32_t)&_sdata;
+	uint8_t *pDst = (uint8_t*)&_sdata;
+	uint8_t *pSrc = (uint8_t*)&_la_data;
+	for(uint32_t i=0;i<size;i++){
+		*pDst++ = *pSrc++;
+	}
+	size = (uint32_t)&_ebss - (uint32_t)&_sbss;
+	pDst = (uint8_t*)&_sbss;
+	for(uint32_t i=0;i<size;i++){
+		*pDst++ = 0;
+	}
+}
 
-
-void kmain(void)
-{
+void configuration(void){
 	__sys_init();
 	EXTI0_GPIO_Config(GPIOA,0);
 	EXTI0_Init();
-	while(1){
+}
 
+void kmain(void)
+{
+
+	configuration();
+	while(1){
+		
 	}
 }
 
