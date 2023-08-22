@@ -71,19 +71,7 @@ __attribute__((weak)) void EXTI1_Handler(void){
 	}
 }
 
-void reboot(void){
-	uint32_t size = (uint32_t)&_edata - (uint32_t)&_sdata;
-	uint8_t *pDst = (uint8_t*)&_sdata;
-	uint8_t *pSrc = (uint8_t*)&_la_data;
-	for(uint32_t i=0;i<size;i++){
-		*pDst++ = *pSrc++;
-	}
-	size = (uint32_t)&_ebss - (uint32_t)&_sbss;
-	pDst = (uint8_t*)&_sbss;
-	for(uint32_t i=0;i<size;i++){
-		*pDst++ = 0;
-	}
-}
+
 
 //implement hardfault handler
 __attribute__((weak)) void HardFault_Handler(void){

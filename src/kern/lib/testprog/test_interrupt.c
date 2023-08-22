@@ -57,7 +57,7 @@ void test_hardfault(void){
 
 void test_sys_tick(void){
 	//set systick
-	__NVIC_SetPriority(SysTick_IRQn,12);
+	// __NVIC_SetPriority(SysTick_IRQn,12);
 	kprintf("Systick Priority>> : %d\n",__NVIC_GetPriority(SysTick_IRQn));
 	__set_BASEPRI(2);
 	for(int i = 0;i < 5;i++){
