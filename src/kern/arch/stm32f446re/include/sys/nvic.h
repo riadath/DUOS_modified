@@ -23,6 +23,7 @@ uint32_t __get_FAULTMASK(void);
 void __clear_pending_IRQn(enum IRQn_TypeDef IRQn);
 uint32_t __get_pending_IRQn(enum IRQn_TypeDef IRQn);
 uint32_t __NVIC_GetActive (enum IRQn_TypeDef IRQn);
-
+void __set_SysTick_Priority(uint8_t priority);
+uint32_t __get_SysTick_Priority(void);
 
 #endif

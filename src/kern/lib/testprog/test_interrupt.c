@@ -54,3 +54,12 @@ void test_hardfault(void){
 	uint32_t val = *ptr;
 	kprintf("val : %d\n",val);
 }
+
+void test_sys_tick(void){
+	//set systick
+	__NVIC_SetPriority(SysTick_IRQn,8);
+	kprintf("Systick Priority>> : %d\n",__NVIC_GetPriority(SysTick_IRQn));
+	__set_BASEPRI(5);
+	kprintf("basepri : %d\n",__get_BASEPRI());
+	blinky_test_code();
+}
