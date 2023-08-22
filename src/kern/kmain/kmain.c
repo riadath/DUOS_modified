@@ -95,6 +95,6 @@ void kmain(void)
 
 	// test_hardfault();
 	
-	// test_sys_tick();
+	test_sys_tick();
 }
 
