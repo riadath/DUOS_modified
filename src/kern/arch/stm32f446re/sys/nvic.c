@@ -41,7 +41,8 @@ void __enable_irq(){
 }
 
 void __set_BASEPRI(uint32_t value){
-   asm("mov r0, %0" : "=r" (value) : "r" (value));
+    value = value << (8U - 4U) & (uint32_t)0xFFUL;
+    asm("mov r0, %0" : "=r" (value) : "r" (value));
     asm("msr basepri, r0");
 }
 
