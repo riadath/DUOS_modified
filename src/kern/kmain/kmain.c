@@ -75,7 +75,8 @@ __attribute__((weak)) void EXTI1_Handler(void){
 
 //implement hardfault handler
 __attribute__((weak)) void HardFault_Handler(void){
-	kprintf("HardFault_Handler\n");
+	kprintf("HardFault_Handler Called\n");
+	SCB->CFSR = 0x00000000;
 	while(1);
 }
 
@@ -86,15 +87,6 @@ void kmain(void)
 	EXTI_GPIO_Config(GPIOA,1);
 	EXTI0_Init();
 	EXTI1_Init();
-	// blinky_test_code();
-	// test_set_get_priority();
-	
-	// test_enable_disable();
-
-	// test_masking();
-
-	// test_hardfault();
-	
-	test_sys_tick();
+	test_all();
 }
 

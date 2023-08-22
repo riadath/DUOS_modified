@@ -17,6 +17,7 @@ void EXTI0_Init(void){
 	EXTI->RTSR |= 1<<0; //select rising edge trigger
 	EXTI->FTSR &= ~(1<<0); //disable falling edge trigger
 	__NVIC_EnableIRQn(EXTI0_IRQn); //enable EXTI0 interrupt
+	
 }
 
 void EXTI1_Init(void){
