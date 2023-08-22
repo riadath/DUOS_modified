@@ -2,18 +2,20 @@
 
 /* Functions of NVIC */
 void __NVIC_SetPriority (enum IRQn_TypeDef IRQn,uint8_t priority){
-    //kprintf("setting IRQn %d to priority %d\n",IRQn,priority);
 	if(IRQn >= 0){
 		NVIC->IP[IRQn] = (uint8_t)((priority << 4));
-        //kprintf("priority of IRQn %d is %d\n",IRQn,(uint8_t)(NVIC->IP[IRQn])); 
 	}
+    else{
+        SCB->SHPR[(((uint32_t)IRQn) & 0xFUL)-4UL] = (uint8_t)((priority << 4) & (uint32_t)0xFFUL);
+    }
 }
 
 uint8_t __NVIC_GetPriority(enum IRQn_TypeDef IRQn){
 	if(IRQn >= 0){
-        //kprintf("getting priority of IRQn %d is %d\n",IRQn,(uint8_t)(NVIC->IP[IRQn]));  
 		return (uint8_t)(NVIC->IP[IRQn] >> 4);
-	}
+	}else{
+        return SCB->SHPR[(((uint32_t)IRQn) & 0xFUL)-4UL]  >> (8U - 4U) & (uint32_t)0xFFUL;
+    }
 }
 
 void __NVIC_EnableIRQn(enum IRQn_TypeDef IRQn){
@@ -39,7 +41,8 @@ void __enable_irq(){
 }
 
 void __set_BASEPRI(uint32_t value){
-    asm("mov r0, %0" : "=r" (value));
+    value = value << (8U - 4U) & (uint32_t)0xFFUL;
+    asm("mov r0, %0" : "=r" (value) : "r" (value));
     asm("msr basepri, r0");
 }
 
@@ -110,5 +113,6 @@ uint32_t __NVIC_GetActive(enum IRQn_TypeDef IRQn){
         return pendingState;
     }
 }
+
 
 

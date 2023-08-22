@@ -47,12 +47,18 @@
 static uint32_t GLOBAL_COUNT_EXTI0 = 0;
 static uint32_t GLOBAL_COUNT_EXTI1 = 0;
 
+
+void reboot(){
+	SCB->AIRCR = 0x05FA0004;
+}
+
 __attribute__((weak)) void EXTI0_Handler(void){
 	//clear pending bit
 	if(EXTI->PR & (1<<0)){
 		EXTI->PR |= 1<<0;
-		kprintf("EXTI ______0______ interrupt ,%dth time\n",GLOBAL_COUNT_EXTI0);
-		GLOBAL_COUNT_EXTI0 += 1;
+		reboot();
+		// kprintf("EXTI ______0______ interrupt ,%dth time\n",GLOBAL_COUNT_EXTI0);
+		// GLOBAL_COUNT_EXTI0 += 1;
 	}
 }
 
@@ -92,7 +98,7 @@ void kmain(void)
 	EXTI_GPIO_Config(GPIOA,1);
 	EXTI0_Init();
 	EXTI1_Init();
-	blinky_test_code();
+	// blinky_test_code();
 	// test_set_get_priority();
 	
 	// test_enable_disable();
@@ -101,5 +107,6 @@ void kmain(void)
 
 	// test_hardfault();
 	
+	// test_sys_tick();
 }
 
