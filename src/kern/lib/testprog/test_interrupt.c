@@ -91,6 +91,24 @@ void test_sys_tick(void){
 }
 
 void test_all(void){
+	int cmd;
+	kprintf("================ Testing hardfault ================\n");
+	kprintf("Do you want to test hardfault? (1/0)\n");
+	kscanf("%d",&cmd);
+	if(cmd == 1){
+		kprintf("Testing hardfault\n");
+		test_hardfault();
+	}
+	else{
+		kprintf("Skipping hardfault\n");
+	}
+
+	kprintf("Do you want to test NVIC functions? (1/0)\n");
+	kscanf("%d",&cmd);
+	if(cmd == 0){
+		return;
+	}
+
 	kprintf("________________Testing all________________\n");
 	kprintf("===== Testing __NVIC_set/get_priority =====+\n");
 	test_set_get_priority();
@@ -105,6 +123,5 @@ void test_all(void){
 	kprintf("================ Testing interrupt masking ================\n");
 	test_masking();
 
-	kprintf("================ Testing hardfault ================\n");
-	test_hardfault();
+	
 }

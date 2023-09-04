@@ -77,8 +77,8 @@ __attribute__((weak)) void EXTI1_Handler(void){
 __attribute__((weak)) void HardFault_Handler(void){
 	kprintf("HardFault_Handler Called\n");
 	SCB->CFSR = 0x00000000;
-	while(1);
-}
+	reboot();
+}	
 
 void kmain(void)
 {
