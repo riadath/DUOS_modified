@@ -39,18 +39,17 @@ void test_masking(void){
 
 
 	kprintf("Setting Fault Mask to 1\n");
-	__set_FAULTMASK(1);
+	__set_FAULTMASK();
+	kprintf("Faultmask Value (get) : %d\n",__get_FAULTMASK());
 	kprintf("After Setting Fault Mask\nSysTick Does not Work\n");
-
 	__SysTick_init(1000);
+
 	kprintf("(__GetTime After) 1 : %d\n",__getTime());
 	temp = 10000000;
 	while(temp--)asm("NOP");
 	kprintf("(__GetTime After) 2 : %d\n",__getTime());
 	kprintf("Systick Get Time should not work\n");
 
-	kprintf("Setting Fault Mask back to 0\n");
-	__set_FAULTMASK(0);
 }
 
 

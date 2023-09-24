@@ -44,6 +44,11 @@
 #include <nvic.h>
 #include <test_interrupt.h> // test interrupt function
 
+
+//includes for svc and pendsvc
+#include <syscall.h>
+#include <syscall_def.h>
+
 static uint32_t GLOBAL_COUNT_EXTI0 = 0;
 static uint32_t GLOBAL_COUNT_EXTI1 = 0;
 
@@ -62,31 +67,38 @@ __attribute__((weak)) void EXTI0_Handler(void){
 	}
 }
 
-__attribute__((weak)) void EXTI1_Handler(void){
-	//clear pending bit
-	if(EXTI->PR & (1<<1)){
-		EXTI->PR |= 1<<1;
-		kprintf("EXTI ______1______ interrupt ,%dth time\n",GLOBAL_COUNT_EXTI1);
-		GLOBAL_COUNT_EXTI1 += 1;
-	}
-}
-
-
 
 //implement hardfault handler
 __attribute__((weak)) void HardFault_Handler(void){
 	kprintf("HardFault_Handler Called\n");
-	SCB->CFSR = 0x00000000;
-	reboot();
+	// reboot();
+	while(1);
 }	
+
+typedef struct dev_t
+{
+
+	char name[32]; // Device name or symbol
+	uint32_t t_ref; //Number of open count
+	uint8_t t_access; //open type O_RDONLY, O_WRDONLY, O_APPEND
+	uint32_t *op_addr; //Address of the datastructure operations
+}dev_table;
 
 void kmain(void)
 {
 	__sys_init();
-	EXTI_GPIO_Config(GPIOA,0);
-	EXTI_GPIO_Config(GPIOA,1);
-	EXTI0_Init();
-	EXTI1_Init();
-	test_all();
+	dev_table dev[64];
+	strcpy(dev[0].name,"usart1");
+	dev[0].t_ref = 23;
+
+	kprintf("Device name: %s\n",dev[0].name);
+	kprintf("Device t_ref: %d\n",dev[0].t_ref);
+
+	while(1){
+		
+	}
+	
+	//trigger svc
+	// __asm__ volatile("svc #0");
 }
 

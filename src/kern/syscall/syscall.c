@@ -32,6 +32,8 @@
 #include <syscall_def.h>
 #include <errno.h>
 #include <errmsg.h>
+
+
 void syscall(uint16_t callno)
 {
 /* The SVC_Handler calls this function to evaluate and execute the actual function */

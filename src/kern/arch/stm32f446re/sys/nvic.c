@@ -6,6 +6,7 @@ void __NVIC_SetPriority (enum IRQn_TypeDef IRQn,uint8_t priority){
 		NVIC->IP[IRQn] = (uint8_t)((priority << 4));
 	}
     else{
+        // kprintf("SHPR STATE ___________ %d\n",(((uint32_t)IRQn) & 0xFUL)-4UL);
         SCB->SHPR[(((uint32_t)IRQn) & 0xFUL)-4UL] = (uint8_t)((priority << 4) & (uint32_t)0xFFUL);
     }
 }
@@ -74,11 +75,15 @@ void __disable_fault_irq(void){
     asm("msr primask, r0");
 }
 
-void __set_FAULTMASK(uint32_t faultMask){
-    asm("mov r0, %0" : "=r" (faultMask) : "r" (faultMask));
+void __set_FAULTMASK(void){
+    asm("mov r0, #1");
     asm("msr faultmask, r0");
 }
 
+void __clear_FAULTMASK(void){
+    asm("mov r0, #0");
+    asm("msr faultmask, r0");
+}
 uint32_t __get_FAULTMASK(void){
     uint32_t value;
     asm("mrs r0,faultmask");
