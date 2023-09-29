@@ -37,8 +37,8 @@
 void __sys_init(void)
 {
 	DRV_CLOCK_INIT(); //configure system clock 180 MHz
-	DRV_GPIO_INIT(GPIOA); //Initialize GPIO 
-	DRV_GPIO_INIT(GPIOB);
+	// DRV_GPIO_INIT(GPIOA); //Initialize GPIO 
+	// DRV_GPIO_INIT(GPIOB);
 	DRV_USART_INIT(USART2); //configure as standard input and output 
 	__enable_fpu(); //enable FPU single precision floating point unit
 	__SysTick_init(10000);	//enable systick for 10ms

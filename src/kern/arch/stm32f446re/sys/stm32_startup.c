@@ -72,11 +72,6 @@ void BusFault_Handler(void)
 	while(1);
 }
 
-void SVCall_Handler(void){
-/* Write code for SVC handler */
-/* the handler function evntually call syscall function with a call number */
 
-
-}
 
 
