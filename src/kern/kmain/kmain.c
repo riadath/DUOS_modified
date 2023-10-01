@@ -126,17 +126,18 @@ void kmain(void)
 	__sys_init();
 
 	unsigned int empty[256];
-    
+	for(int i = 0;i < 256;i++){
+		empty[i] = 0;
+	}
     task_init_env_2(empty+256);
 
-    __asm volatile (
+   __asm volatile (
         ".global task_init_env_2\n"
         "task_init_env_2:\n"
-			"mov r0, #0\n"
 	        "msr psp, r0\n"
 	        "mov r0, #3\n"
 	        "msr control, r0\n"
-	        // "isb\n"
+	        "isb\n"
     
 	);
 
