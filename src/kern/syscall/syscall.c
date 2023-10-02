@@ -57,7 +57,6 @@ void syscall(uint32_t *svc_args)
 		{
 			kprintf("Will call __sys_close\n");
 			uint32_t *op_addr = (uint32_t *)svc_args[0];
-			kprintf("op_addr(syscall): %x\n",op_addr);
 			__sys_close(op_addr);
 			break;
 		}

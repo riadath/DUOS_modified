@@ -41,7 +41,6 @@ void __sys_open(char *name,uint8_t t_access, uint32_t *op_addr){
 }
 
 void __sys_close(uint32_t *op_addr){
-    kprintf("op_addr(__sys_close): %x\n",op_addr);
     uint32_t delete_index = -1;
     for (int i = 0; i < device_count; i++){
         if (device_list[i].op_addr == op_addr){

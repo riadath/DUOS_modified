@@ -115,6 +115,7 @@ void print_device_list(){
 		kprintf("device t_ref = %d\n",device_list[i].t_ref);
 		kprintf("device t_access = %d\n",device_list[i].t_access);
 		kprintf("device op_addr = %x\n",device_list[i].op_addr);
+		kprintf("\n");
 	}
 }
 
@@ -131,6 +132,9 @@ void kmain(void)
 
 	kprintf("op_addr(main): %x\n",op_addr);
 	fopen(device_name,t_access,op_addr);
+
+	print_device_list();
+
 	fclose(op_addr);
 
 	print_device_list();
