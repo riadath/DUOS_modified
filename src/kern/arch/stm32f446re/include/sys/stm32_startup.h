@@ -53,7 +53,7 @@ volatile uint32_t _data_size=0;
 
 void Reset_Handler(void) __attribute__((weak));
 void NMI_Handler(void) __attribute__((weak, alias("Default_Handler")));
-void HardFault_Handler(void) __attribute__((weak, alias("Default_Handler")));
+void HardFault_Handler(void) __attribute__((weak));
 void MemManage_Handler(void) __attribute__((weak));
 void BusFault_Handler(void)__attribute__((weak));
 void UsageFault_Handler(void) __attribute__((weak, alias("Default_Handler")));

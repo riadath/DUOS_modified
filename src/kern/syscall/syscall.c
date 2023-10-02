@@ -32,7 +32,7 @@
 #include <syscall_def.h>
 #include <errno.h>
 #include <errmsg.h>
-
+#include <kstdio.h>
 
 void syscall(uint16_t callno)
 {
@@ -42,18 +42,25 @@ void syscall(uint16_t callno)
 	{
 		/* Write your code to call actual function (kunistd.h/c or times.h/c and handle the return value(s) */
 		case SYS_read: 
+			kprintf("Will call __sys_read\n");
 			break;
 		case SYS_write:
+			kprintf("Will call __sys_write\n");
 			break;
 		case SYS_reboot:
+			kprintf("Will call __sys_reboot\n");
 			break;	
 		case SYS__exit:
+			kprintf("Will call __sys_exit\n");
 			break;
 		case SYS_getpid:
+			kprintf("Will call __sys_getpid\n");
 			break;
 		case SYS___time:
+			kprintf("Will call __sys_time\n");
 			break;
 		case SYS_yield:
+			kprintf("Will call __sys_yield\n");
 			break;				
 		/* return error code see error.h and errmsg.h ENOSYS sys_errlist[ENOSYS]*/	
 		default: ;

@@ -56,94 +56,65 @@ void reboot(){
 
 
 
-//implement hardfault handler
-__attribute__((weak)) void HardFault_Handler(void){
-	kprintf("HardFault_Handler Called\n");
-	// reboot();
-	while(1);
-}	
 
 
 
-//practice for inline assembly
-int do_stuff(int i, int j)
-{
-  int ret = 0;
-  __asm volatile("mov R0, #2");
-  __asm volatile("mov R1, #3");
-  __asm volatile("add R0, R0, R1");
-  __asm volatile(
-		"add %[x], %[y], %[z]" 
-		: [x] "=r" (ret)
-		: [y] "r" (i), [z] "r" (j)
-  );
-  return ret;
-}
-//practice for inline assembly
-
-struct t_task_tcb{
-	uint32_t magic_number; //here it is 0xFECABAA0
-	uint16_t task_id; //a unsigned 16 bit integer starting from 1000
-	void *psp; //task stack pointer or stackframe address
-	uint16_t status; //task status: running, waiting, ready, killed, or terminated
-	uint32_t execution_time; //total execution time (in ms)
-	uint32_t waiting_time; //total waiting time (in ms)
-	uint32_t digital_sinature; //current value is 0x00000001
-} TCB_TypeDef;
-typedef struct dev_t
-{
-
+typedef struct dev_t{
 	char name[32]; // Device name or symbol
 	uint32_t t_ref; //Number of open count
 	uint8_t t_access; //open type O_RDONLY, O_WRDONLY, O_APPEND
 	uint32_t *op_addr; //Address of the datastructure operations
 }dev_table;
 
-__attribute__((weak)) void SVCall_Handler(void) {
 
-	__asm volatile (
-		"TST lr, #4\n"
-        "ITE EQ\n"
-        "MRSEQ r0, MSP\n"
-    	"MRSNE r0, PSP\n"
-		"MOV r1, r0\n"
-		"B SVC_Handler_Main\n"
-	);
 
-}
 
 void SVC_Handler_Main( uint32_t *svc_args )
 {
 	uint32_t svc_number = 0;
+	//pring string in r0
+	kprintf("svc_args[0] = %s\n",svc_args[0]);
+	for (int i = 1;i < 3;i++){
+		kprintf("svc_args[%d] = %d\n",i,svc_args[i]);
+	}
+
 	svc_number = ((char *)svc_args[6])[-2] ;
 	kprintf("svc number %d\n",svc_number);
+	syscall(svc_number);
 }
 
-
+void SVC_Init(void){
+	uint32_t psp_stack[1024];
+    PSP_Init(psp_stack + 1024);
+   __asm volatile (
+		".global PSP_Init\n"
+		"PSP_Init:\n"
+			"msr psp, r0\n"
+			"mov r0, #3\n"
+			"msr control, r0\n"
+			"isb\n"
+	);
+}
 
 void kmain(void)
 {
 	__sys_init();
-
-	unsigned int empty[256];
-	for(int i = 0;i < 256;i++){
-		empty[i] = 0;
-	}
-    task_init_env_2(empty+256);
-
-   __asm volatile (
-        ".global task_init_env_2\n"
-        "task_init_env_2:\n"
-	        "msr psp, r0\n"
-	        "mov r0, #3\n"
-	        "msr control, r0\n"
-	        "isb\n"
-    
+	SVC_Init();
+	kprintf("Hello World\n");
+	//load args in r0, r1, r2, r3
+	char *str = "my_str";
+	//load str to r0
+	__asm volatile (
+		"mov r0, %[x]\n"
+		: 
+		: [x] "r" (str)
 	);
-
-    __asm volatile ("svc 9");
-    __asm volatile ("svc 8");
-    __asm volatile ("svc 29");
+	__asm volatile (
+		"mov r1, #2\n"
+		"mov r2, #3\n"
+		"mov r3, #4\n"
+	);
+	__asm volatile("svc #50");
 
 	kprintf("here back main\n");
 	while(1);

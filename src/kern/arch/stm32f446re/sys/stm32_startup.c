@@ -51,27 +51,26 @@ void Default_Handler(void){
 	while(1);
 }
 
-// //2. implement the fault handlers
-// void HardFault_Handler(void)
-// {
-// //	printf("Exception : Hardfault\n");
-// 	while(1){
-// 	}
-// }
 
-
-void MemManage_Handler(void)
-{
-//	printf("Exception : MemManage\n");
+//implement hardfault handler
+void HardFault_Handler(void){
+	kprintf("HardFault_Handler Called\n");
+	// reboot();
 	while(1);
+}	
+
+
+
+__attribute__((weak)) void SVCall_Handler(void) {
+
+	__asm volatile (
+		"TST lr, #4\n"
+        "ITE EQ\n"
+        "MRSEQ r0, MSP\n"
+    	"MRSNE r0, PSP\n"
+		"MOV r1, r0\n"
+		"B SVC_Handler_Main\n"
+	);
+
 }
-
-void BusFault_Handler(void)
-{
-//	printf("Exception : BusFault\n");
-	while(1);
-}
-
-
-
 
