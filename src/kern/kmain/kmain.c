@@ -57,16 +57,6 @@ void reboot(){
 
 void SVC_Handler_Main( uint32_t *svc_args )
 {
-	uint32_t svc_number = 0;
-	//pring string in r0
-	kprintf("svc_args[0] = %s\n",svc_args[0]);
-	for (int i = 1;i < 3;i++){
-		kprintf("svc_args[%d] = %d\n",i,svc_args[i]);
-	}
-
-	svc_number = ((char *)svc_args[6])[-2] ;
-	kprintf("svc number %d\n",svc_number);
-
 	syscall(svc_args);
 }
 
@@ -83,6 +73,28 @@ void SVC_Init(void){
 	);
 }
 
+void fopen(char *name,uint8_t t_access, uint32_t *op_addr){
+	__asm volatile (
+		"mov r0, %[x]\n"
+		"mov r1, %[y]\n"
+		: 
+		: [x] "r" (name), [y] "r" (t_access)
+	);
+	__asm volatile(
+		"mov r2, %[x]\n"
+		:
+		: [x] "r" (op_addr)
+	);
+
+	__asm volatile (
+        "stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+        "svc #45\n"
+        "ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+    );
+
+}
+
+
 void kmain(void)
 {
 	__sys_init();
@@ -93,27 +105,9 @@ void kmain(void)
 	char *device_name = "GPIOA";
 	uint8_t t_access = 0;
 	uint32_t* op_addr = (uint32_t *)GPIOA;
-	kprintf("opp addr = %x\n",op_addr);
-	
-	// //load str to r0
-	__asm volatile (
-		"mov r0, %[x]\n"
-		"mov r1, %[y]\n"
-		: 
-		: [x] "r" (device_name), [y] "r" (t_access)
-	);
-	__asm volatile(
-		"mov r2, %[x]\n"
-		:
-		: [x] "r" (op_addr)
-	);
-
-	__asm volatile("svc #45");
+	fopen(device_name,t_access,op_addr);
 
 
-
-
-	//print device list
 	kprintf("\n\n______________________\n\n");
 	for (int i = 0;i < device_count;i++){
 		kprintf("device name = %s\n",device_list[i].name);
@@ -123,7 +117,7 @@ void kmain(void)
 	}
 
 
-	kprintf("here back main\n");
+	kprintf("___________END MAIN___________\n");
 	while(1);
 }
 
