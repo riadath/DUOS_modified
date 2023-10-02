@@ -68,7 +68,6 @@ __attribute__((weak)) void SVCall_Handler(void) {
         "ITE EQ\n"
         "MRSEQ r0, MSP\n"
     	"MRSNE r0, PSP\n"
-		"MOV r1, r0\n"
 		"B SVC_Handler_Main\n"
 	);
 

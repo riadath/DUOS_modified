@@ -48,10 +48,14 @@ void syscall(uint32_t *svc_args)
 			/*
 			device name in svc_args[0]
 			t_ref in svc_args[1]
-			
+
 			*/
 			kprintf("Will call __sys_open\n");
-			__sys_open();
+			char *device_name = (char *)svc_args[0];
+			uint8_t t_access = (uint8_t)svc_args[1];
+			uint32_t *op_addr = (uint32_t *)svc_args[2];
+			kprintf("op_addr %x\n",op_addr);
+			__sys_open(device_name,t_access,op_addr);
 			break;		
 		case SYS_close:
 			kprintf("Will call __sys_close\n");

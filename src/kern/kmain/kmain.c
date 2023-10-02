@@ -90,23 +90,38 @@ void kmain(void)
 	__init_dev_table();
 
 	
-
-	kprintf("Hello World\n");
-	//load args in r0, r1, r2, r3
-	char *str = "my_str";
-	//load str to r0
+	char *device_name = "GPIOA";
+	uint8_t t_access = 0;
+	uint32_t* op_addr = (uint32_t *)GPIOA;
+	kprintf("opp addr = %x\n",op_addr);
+	
+	// //load str to r0
 	__asm volatile (
 		"mov r0, %[x]\n"
+		"mov r1, %[y]\n"
 		: 
-		: [x] "r" (str)
+		: [x] "r" (device_name), [y] "r" (t_access)
 	);
-	
-	__asm volatile (
-		"mov r1, #2\n"
-		"mov r2, #3\n"
-		"mov r3, #4\n"
+	__asm volatile(
+		"mov r2, %[x]\n"
+		:
+		: [x] "r" (op_addr)
 	);
+
 	__asm volatile("svc #45");
+
+
+
+
+	//print device list
+	kprintf("\n\n______________________\n\n");
+	for (int i = 0;i < device_count;i++){
+		kprintf("device name = %s\n",device_list[i].name);
+		kprintf("device t_ref = %d\n",device_list[i].t_ref);
+		kprintf("device t_access = %d\n",device_list[i].t_access);
+		kprintf("device op_addr = %x\n",device_list[i].op_addr);
+	}
+
 
 	kprintf("here back main\n");
 	while(1);

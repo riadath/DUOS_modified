@@ -28,11 +28,14 @@
  * SUCH DAMAGE.
  */
 #include <kunistd.h>
-#include <kstdio.h>
-#include <dev_table.h>
+
 /* Add your functions here */
 extern uint32_t device_count;
 
-void __sys_open(void){
-    
+void __sys_open(char *name,uint8_t t_access, uint32_t *op_addr){
+    strcpy(device_list[device_count].name,name);
+    device_list[device_count].t_ref++;
+    device_list[device_count].t_access = t_access;
+    device_list[device_count].op_addr = op_addr;
+    device_count++;
 }
