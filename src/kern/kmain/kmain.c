@@ -95,6 +95,29 @@ void fopen(char *name,uint8_t t_access, uint32_t *op_addr){
 }
 
 
+void fclose(uint32_t *op_addr){
+	__asm volatile (
+		"mov r0, %[x]\n"
+		:
+		: [x] "r" (op_addr)
+	);
+	__asm volatile (
+		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+		"svc #49\n"
+		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+	);
+}
+
+void print_device_list(){
+	kprintf("\n\n______________________\n\n");
+	for (int i = 0;i < device_count;i++){
+		kprintf("device name = %s\n",device_list[i].name);
+		kprintf("device t_ref = %d\n",device_list[i].t_ref);
+		kprintf("device t_access = %d\n",device_list[i].t_access);
+		kprintf("device op_addr = %x\n",device_list[i].op_addr);
+	}
+}
+
 void kmain(void)
 {
 	__sys_init();
@@ -105,16 +128,12 @@ void kmain(void)
 	char *device_name = "GPIOA";
 	uint8_t t_access = 0;
 	uint32_t* op_addr = (uint32_t *)GPIOA;
+
+	kprintf("op_addr(main): %x\n",op_addr);
 	fopen(device_name,t_access,op_addr);
+	fclose(op_addr);
 
-
-	kprintf("\n\n______________________\n\n");
-	for (int i = 0;i < device_count;i++){
-		kprintf("device name = %s\n",device_list[i].name);
-		kprintf("device t_ref = %d\n",device_list[i].t_ref);
-		kprintf("device t_access = %d\n",device_list[i].t_access);
-		kprintf("device op_addr = %x\n",device_list[i].op_addr);
-	}
+	print_device_list();
 
 
 	kprintf("___________END MAIN___________\n");

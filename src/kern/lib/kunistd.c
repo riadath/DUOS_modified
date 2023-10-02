@@ -39,3 +39,22 @@ void __sys_open(char *name,uint8_t t_access, uint32_t *op_addr){
     device_list[device_count].op_addr = op_addr;
     device_count++;
 }
+
+void __sys_close(uint32_t *op_addr){
+    kprintf("op_addr(__sys_close): %x\n",op_addr);
+    uint32_t delete_index = -1;
+    for (int i = 0; i < device_count; i++){
+        if (device_list[i].op_addr == op_addr){
+            device_list[i].t_ref--;
+            if (device_list[i].t_ref == 0){
+                delete_index = i;
+            }
+        }
+    }
+    if (delete_index != -1){
+        for (int i = delete_index; i < device_count - 1; i++){
+            device_list[i] = device_list[i+1];
+        }
+        device_count--;
+    }
+}

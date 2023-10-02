@@ -9,7 +9,6 @@ void __init_dev_table(void){
         device_list[i].t_ref = 0;
     }
 
-    kprintf("Initializing dev table\n");
     //init device_list[device_count]
     strcpy(device_list[device_count].name, "USART2");
     device_list[device_count].t_ref += 1;

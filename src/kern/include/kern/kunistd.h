@@ -38,6 +38,6 @@
 #include <dev_table.h>
 #include <kstring.h>
 void __sys_open(char *,uint8_t,uint32_t *);
-
+void __sys_close(uint32_t *);
 #endif /* KERN_UNISTD_H */
 
