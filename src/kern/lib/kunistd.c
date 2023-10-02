@@ -57,3 +57,8 @@ void __sys_close(uint32_t *op_addr){
         device_count--;
     }
 }
+
+void __reboot(void){
+	SCB->AIRCR = 0x05FA0004;
+    while(1);
+}

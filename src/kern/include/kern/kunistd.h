@@ -37,7 +37,9 @@
 #include <kstdio.h>
 #include <dev_table.h>
 #include <kstring.h>
+#include <cm4.h>
 void __sys_open(char *,uint8_t,uint32_t *);
 void __sys_close(uint32_t *);
+void __reboot(void);
 #endif /* KERN_UNISTD_H */
 

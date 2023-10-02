@@ -50,10 +50,6 @@
 #include <syscall_def.h>
 
 
-void reboot(){
-	SCB->AIRCR = 0x05FA0004;
-}
-
 
 void SVC_Handler_Main( uint32_t *svc_args )
 {
@@ -108,6 +104,14 @@ void fclose(uint32_t *op_addr){
 	);
 }
 
+void reboot(){
+	__asm volatile (
+		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+		"svc #119\n"
+		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+	);
+}
+
 void print_device_list(){
 	kprintf("\n\n______________________\n\n");
 	for (int i = 0;i < device_count;i++){
@@ -125,20 +129,23 @@ void kmain(void)
 	SVC_Init();
 	__init_dev_table();
 
-	
+	//test fopen and fclose
 	char *device_name = "GPIOA";
 	uint8_t t_access = 0;
 	uint32_t* op_addr = (uint32_t *)GPIOA;
-
-	kprintf("op_addr(main): %x\n",op_addr);
 	fopen(device_name,t_access,op_addr);
-
 	print_device_list();
 
 	fclose(op_addr);
-
 	print_device_list();
 
+	//test reboot
+	kprintf("Do you want to reboot the OS? (y : 1 /n : 0)\n");
+	int if_reboot;
+	kscanf("%d",&if_reboot);
+	if (if_reboot == 1){
+		reboot();
+	}
 
 	kprintf("___________END MAIN___________\n");
 	while(1);
