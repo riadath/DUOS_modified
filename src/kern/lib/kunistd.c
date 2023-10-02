@@ -28,5 +28,11 @@
  * SUCH DAMAGE.
  */
 #include <kunistd.h>
+#include <kstdio.h>
+#include <dev_table.h>
 /* Add your functions here */
+extern uint32_t device_count;
 
+void __sys_open(void){
+    
+}

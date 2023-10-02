@@ -38,7 +38,7 @@
 #include <usart.h>
 #include <gpio.h>
 #include <stm32_peps.h>
-
+#include <dev_table.h>
 //new includes for assignment 2
 #include <sys.h> // EXTI Config
 #include <nvic.h>
@@ -55,20 +55,6 @@ void reboot(){
 }
 
 
-
-
-
-
-typedef struct dev_t{
-	char name[32]; // Device name or symbol
-	uint32_t t_ref; //Number of open count
-	uint8_t t_access; //open type O_RDONLY, O_WRDONLY, O_APPEND
-	uint32_t *op_addr; //Address of the datastructure operations
-}dev_table;
-
-
-
-
 void SVC_Handler_Main( uint32_t *svc_args )
 {
 	uint32_t svc_number = 0;
@@ -80,7 +66,8 @@ void SVC_Handler_Main( uint32_t *svc_args )
 
 	svc_number = ((char *)svc_args[6])[-2] ;
 	kprintf("svc number %d\n",svc_number);
-	syscall(svc_number);
+
+	syscall(svc_args);
 }
 
 void SVC_Init(void){
@@ -100,6 +87,10 @@ void kmain(void)
 {
 	__sys_init();
 	SVC_Init();
+	__init_dev_table();
+
+	
+
 	kprintf("Hello World\n");
 	//load args in r0, r1, r2, r3
 	char *str = "my_str";
@@ -109,12 +100,13 @@ void kmain(void)
 		: 
 		: [x] "r" (str)
 	);
+	
 	__asm volatile (
 		"mov r1, #2\n"
 		"mov r2, #3\n"
 		"mov r3, #4\n"
 	);
-	__asm volatile("svc #50");
+	__asm volatile("svc #45");
 
 	kprintf("here back main\n");
 	while(1);

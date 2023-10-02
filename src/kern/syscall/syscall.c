@@ -33,14 +33,29 @@
 #include <errno.h>
 #include <errmsg.h>
 #include <kstdio.h>
-
-void syscall(uint16_t callno)
+#include <kunistd.h>
+void syscall(uint32_t *svc_args)
 {
 /* The SVC_Handler calls this function to evaluate and execute the actual function */
 /* Take care of return value or code */
+
+	uint16_t callno = ((char *)svc_args[6])[-2];
+	
 	switch(callno)
 	{
 		/* Write your code to call actual function (kunistd.h/c or times.h/c and handle the return value(s) */
+		case SYS_open:
+			/*
+			device name in svc_args[0]
+			t_ref in svc_args[1]
+			
+			*/
+			kprintf("Will call __sys_open\n");
+			__sys_open();
+			break;		
+		case SYS_close:
+			kprintf("Will call __sys_close\n");
+			break;
 		case SYS_read: 
 			kprintf("Will call __sys_read\n");
 			break;
