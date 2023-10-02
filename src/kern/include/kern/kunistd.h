@@ -40,6 +40,6 @@
 #include <cm4.h>
 void __sys_open(char *,uint8_t,uint32_t *);
 void __sys_close(uint32_t *);
-void __reboot(void);
+void __sys_reboot(void);
 #endif /* KERN_UNISTD_H */
 

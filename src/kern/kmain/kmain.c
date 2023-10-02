@@ -69,6 +69,17 @@ void SVC_Init(void){
 	);
 }
 
+void print_device_list(){
+	kprintf("\n\n______________________\n\n");
+	for (int i = 0;i < device_count;i++){
+		kprintf("device name = %s\n",device_list[i].name);
+		kprintf("device t_ref = %d\n",device_list[i].t_ref);
+		kprintf("device t_access = %d\n",device_list[i].t_access);
+		kprintf("device op_addr = %x\n",device_list[i].op_addr);
+		kprintf("\n");
+	}
+}
+
 void fopen(char *name,uint8_t t_access, uint32_t *op_addr){
 	__asm volatile (
 		"mov r0, %[x]\n"
@@ -89,7 +100,6 @@ void fopen(char *name,uint8_t t_access, uint32_t *op_addr){
     );
 
 }
-
 
 void fclose(uint32_t *op_addr){
 	__asm volatile (
@@ -112,16 +122,8 @@ void reboot(){
 	);
 }
 
-void print_device_list(){
-	kprintf("\n\n______________________\n\n");
-	for (int i = 0;i < device_count;i++){
-		kprintf("device name = %s\n",device_list[i].name);
-		kprintf("device t_ref = %d\n",device_list[i].t_ref);
-		kprintf("device t_access = %d\n",device_list[i].t_access);
-		kprintf("device op_addr = %x\n",device_list[i].op_addr);
-		kprintf("\n");
-	}
-}
+
+
 
 void kmain(void)
 {
@@ -146,6 +148,8 @@ void kmain(void)
 	if (if_reboot == 1){
 		reboot();
 	}
+
+	
 
 	kprintf("___________END MAIN___________\n");
 	while(1);

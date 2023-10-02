@@ -68,7 +68,7 @@ void syscall(uint32_t *svc_args)
 			break;
 		case SYS_reboot:
 			kprintf("Will call __sys_reboot\n");
-			__reboot();
+			__sys_reboot();
 			break;	
 		case SYS__exit:
 			kprintf("Will call __sys_exit\n");

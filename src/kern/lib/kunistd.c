@@ -58,7 +58,6 @@ void __sys_close(uint32_t *op_addr){
     }
 }
 
-void __reboot(void){
+void __sys_reboot(void){
 	SCB->AIRCR = 0x05FA0004;
-    while(1);
 }
