@@ -43,7 +43,7 @@
 #include <sys.h> // EXTI Config
 #include <nvic.h>
 #include <test_interrupt.h> // test interrupt function
-
+#include <unistd.h>
 
 //includes for svc and pendsvc
 #include <syscall.h>
@@ -66,67 +66,6 @@ void print_device_list(){
 		kprintf("device op_addr = %x\n",device_list[i].op_addr);
 		kprintf("\n");
 	}
-}
-
-void fopen(char *name,uint8_t t_access, uint32_t *op_addr){
-	__asm volatile (
-		"mov r0, %[x]\n"
-		"mov r1, %[y]\n"
-		: 
-		: [x] "r" (name), [y] "r" (t_access)
-	);
-	__asm volatile(
-		"mov r2, %[x]\n"
-		:
-		: [x] "r" (op_addr)
-	);
-
-	__asm volatile (
-        "stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-        "svc #45\n"
-        "ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-    );
-
-}
-
-void fclose(uint32_t *op_addr){
-	__asm volatile (
-		"mov r0, %[x]\n"
-		:
-		: [x] "r" (op_addr)
-	);
-	__asm volatile (
-		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-		"svc #49\n"
-		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-	);
-}
-
-void reboot(){
-	__asm volatile (
-		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-		"svc #119\n"
-		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-	);
-}
-
-void scanf(uint8_t fd,char **data,uint32_t size){
-	__asm volatile (
-		"mov r0, %[x]\n"
-		"mov r1, %[y]\n"
-		:
-		: [x] "r" (fd), [y] "r" (data)
-	);
-	__asm volatile (
-		"mov r2, %[x]\n"
-		:
-		: [x] "r" (size)
-	);
-	__asm volatile (
-		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-		"svc #50\n"
-		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-	);
 }
 
 void SVC_Init(void){
@@ -156,7 +95,7 @@ void kmain(void)
 	scanf(0,&data,5);
 	kprintf("data(main) = %s\n",data);
 
-	/*
+	
 	//test fopen and fclose
 	char *device_name = "GPIOA";
 	uint8_t t_access = 0;
@@ -174,7 +113,7 @@ void kmain(void)
 	if (if_reboot == 1){
 		reboot();
 	}
-	*/
+	
 
 	kprintf("___________END MAIN___________\n");
 	while(1);

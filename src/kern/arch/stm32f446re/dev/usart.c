@@ -76,9 +76,9 @@ uint8_t _USART_READ(USART_TypeDef* usart,uint8_t *buff,uint16_t size)
 	uint8_t n=0;
 	for(uint8_t i=0;i<size;i++){
 		buff[i]=UART_GetChar(usart);
-		if(i==0 && buff[i]!= 0x03F){continue;}
 		n=i;
 	}
+	buff[n+1] = '\0';
 	return n;
 }
 
@@ -97,8 +97,11 @@ uint8_t _USART_READ_STR(USART_TypeDef* usart,uint8_t *buff,uint16_t size)
 	for(uint8_t i=0;i<size;i++){
 		buff[i]=UART_GetChar(usart);
 		n=i;
+		if(buff[i]=='\0' || buff[i] == '\n' || buff[i] == ' ')
+		{ 	
+			buff[i]='\0';
+			break;
+		}
 	}
-	buff[n+1] = '\0';
 	return n;
 }
-

@@ -30,6 +30,10 @@
  
 #ifndef __UNISTD_H
 #define __UNISTD_H
+#include <stdint.h>
 /* Basic input and output function */
-
+void fopen(char *name,uint8_t t_access, uint32_t *op_addr);
+void fclose(uint32_t *op_addr);
+void reboot(void);
+void scanf(uint8_t fd,char **data,uint32_t size);
 #endif

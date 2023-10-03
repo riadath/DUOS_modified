@@ -67,7 +67,7 @@ void __sys_read(uint8_t fd,char **data,uint32_t size){
         case STDIN_FILENO:
             char temp[size];
             uint8_t *buff;
-            _USART_READ_STR(USART2,&buff,size);
+            _USART_READ(USART2,&buff,size);
             strcpy(temp,&buff);
             *data = temp;
             break;

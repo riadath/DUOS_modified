@@ -29,5 +29,67 @@
  */
  
 #include <unistd.h>
+
+void fopen(char *name,uint8_t t_access, uint32_t *op_addr){
+	__asm volatile (
+		"mov r0, %[x]\n"
+		"mov r1, %[y]\n"
+		: 
+		: [x] "r" (name), [y] "r" (t_access)
+	);
+	__asm volatile(
+		"mov r2, %[x]\n"
+		:
+		: [x] "r" (op_addr)
+	);
+
+	__asm volatile (
+        "stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+        "svc #45\n"
+        "ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+    );
+
+}
+
+void fclose(uint32_t *op_addr){
+	__asm volatile (
+		"mov r0, %[x]\n"
+		:
+		: [x] "r" (op_addr)
+	);
+	__asm volatile (
+		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+		"svc #49\n"
+		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+	);
+}
+
+void reboot(void){
+	__asm volatile (
+		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+		"svc #119\n"
+		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+	);
+}
+
+void scanf(uint8_t fd,char **data,uint32_t size){
+	__asm volatile (
+		"mov r0, %[x]\n"
+		"mov r1, %[y]\n"
+		:
+		: [x] "r" (fd), [y] "r" (data)
+	);
+	__asm volatile (
+		"mov r2, %[x]\n"
+		:
+		: [x] "r" (size)
+	);
+	__asm volatile (
+		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+		"svc #50\n"
+		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+	);
+}
+
 /* Write your highlevel I/O details */
 
