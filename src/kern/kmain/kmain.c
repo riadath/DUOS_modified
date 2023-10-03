@@ -56,18 +56,6 @@ void SVC_Handler_Main( uint32_t *svc_args )
 	syscall(svc_args);
 }
 
-void SVC_Init(void){
-	uint32_t psp_stack[1024];
-    PSP_Init(psp_stack + 1024);
-   __asm volatile (
-		".global PSP_Init\n"
-		"PSP_Init:\n"
-			"msr psp, r0\n"
-			"mov r0, #3\n"
-			"msr control, r0\n"
-			"isb\n"
-	);
-}
 
 void print_device_list(){
 	kprintf("\n\n______________________\n\n");
@@ -122,6 +110,37 @@ void reboot(){
 	);
 }
 
+void scanf(uint8_t fd,char **data,uint32_t size){
+	__asm volatile (
+		"mov r0, %[x]\n"
+		"mov r1, %[y]\n"
+		:
+		: [x] "r" (fd), [y] "r" (data)
+	);
+	__asm volatile (
+		"mov r2, %[x]\n"
+		:
+		: [x] "r" (size)
+	);
+	__asm volatile (
+		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+		"svc #50\n"
+		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+	);
+}
+
+void SVC_Init(void){
+	uint32_t psp_stack[1024];
+    PSP_Init(psp_stack + 1024);
+   __asm volatile (
+		".global PSP_Init\n"
+		"PSP_Init:\n"
+			"msr psp, r0\n"
+			"mov r0, #3\n"
+			"msr control, r0\n"
+			"isb\n"
+	);
+}
 
 
 
@@ -131,6 +150,18 @@ void kmain(void)
 	SVC_Init();
 	__init_dev_table();
 
+	uint8_t *buff;
+	_USART_READ(USART2,&buff,5);
+	char *str;
+	str = (char *)&buff;
+	kprintf("str = %s\n",str);
+	
+	//test scanf
+	// char *data = "temp a ja e thakuk";
+	// scanf(0,&data,5);
+	// kprintf("data(main) = %s\n",data);
+
+	/*
 	//test fopen and fclose
 	char *device_name = "GPIOA";
 	uint8_t t_access = 0;
@@ -148,8 +179,7 @@ void kmain(void)
 	if (if_reboot == 1){
 		reboot();
 	}
-
-	
+	*/
 
 	kprintf("___________END MAIN___________\n");
 	while(1);

@@ -55,7 +55,6 @@ void Default_Handler(void){
 //implement hardfault handler
 void HardFault_Handler(void){
 	kprintf("HardFault_Handler Called\n");
-	// reboot();
 	while(1);
 }	
 

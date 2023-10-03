@@ -38,8 +38,11 @@
 #include <dev_table.h>
 #include <kstring.h>
 #include <cm4.h>
+#include <stm32_peps.h>
+#include <usart.h>
 void __sys_open(char *,uint8_t,uint32_t *);
 void __sys_close(uint32_t *);
 void __sys_reboot(void);
+void __sys_read(uint8_t,char **,uint32_t);
 #endif /* KERN_UNISTD_H */
 

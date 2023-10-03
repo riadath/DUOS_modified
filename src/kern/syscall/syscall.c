@@ -62,6 +62,10 @@ void syscall(uint32_t *svc_args)
 		}
 		case SYS_read: 
 			kprintf("Will call __sys_read\n");
+			uint8_t fd = (uint8_t)svc_args[0];
+			char **data = (char **)svc_args[1];
+			uint32_t size = (uint32_t)svc_args[2];
+			__sys_read(fd,data,size);
 			break;
 		case SYS_write:
 			kprintf("Will call __sys_write\n");
