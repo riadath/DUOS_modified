@@ -65,11 +65,11 @@ void __sys_read(uint8_t fd,char **data,uint32_t size){
     switch(fd)
     {
         case STDIN_FILENO:
-            uint8_t *temp = "";
-            _USART_READ(USART2,temp,size);
-            char *str = (char *)temp;
-            kprintf("str = %s\n",str);
-            *data = str;
+            char temp[size];
+            uint8_t *buff;
+            _USART_READ_STR(USART2,&buff,size);
+            strcpy(temp,&buff);
+            *data = temp;
             break;
     }
 }

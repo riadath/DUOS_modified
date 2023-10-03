@@ -150,16 +150,11 @@ void kmain(void)
 	SVC_Init();
 	__init_dev_table();
 
-	uint8_t *buff;
-	_USART_READ(USART2,&buff,5);
-	char *str;
-	str = (char *)&buff;
-	kprintf("str = %s\n",str);
 	
-	//test scanf
-	// char *data = "temp a ja e thakuk";
-	// scanf(0,&data,5);
-	// kprintf("data(main) = %s\n",data);
+	// test scanf
+	char *data = "temp a ja e thakuk";
+	scanf(0,&data,5);
+	kprintf("data(main) = %s\n",data);
 
 	/*
 	//test fopen and fclose
