@@ -68,7 +68,7 @@ void print_device_list(){
 	}
 }
 
-void SVC_Init(void){
+void __move_to_user(void){
 	uint32_t psp_stack[1024];
     PSP_Init(psp_stack + 1024);
    __asm volatile (
@@ -86,7 +86,7 @@ void SVC_Init(void){
 void kmain(void)
 {
 	__sys_init();
-	SVC_Init();
+	__move_to_user();
 	__init_dev_table();
 
 	
