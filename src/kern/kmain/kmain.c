@@ -81,15 +81,7 @@ void __move_to_user(void){
 	);
 }
 
-
-
-void kmain(void)
-{
-	__sys_init();
-	__move_to_user();
-	__init_dev_table();
-
-	
+void SVC_Tester(void){
 	// test scanf
 	char *data = "temp a ja e thakuk";
 	scanf(0,&data,5);
@@ -113,6 +105,57 @@ void kmain(void)
 	if (if_reboot == 1){
 		reboot();
 	}
+}
+
+//-------------scheduler----------------
+#include <types.h>
+#include <schedule.h>
+ReadyQ_TypeDef queue;
+
+
+void init_queue(void){
+	queue.size = MAX_TASKS;
+	queue.max = 30;
+	queue.st = 0;
+	queue.ed = -1;
+}
+void add_to_ready_queue(TCB_TypeDef *task){
+	if (queue.size == queue.max){
+		kprintf("Queue is full\n");
+		return;
+	}
+	queue.ed += 1;
+	queue.ed = (queue.ed + 1) % queue.max;
+	queue.q[queue.ed] = task;
+	queue.size++;
+}
+TCB_TypeDef* pop(){
+	if (queue.size == 0){
+		kprintf("Queue is empty\n");
+		return NULL;
+	}
+	TCB_TypeDef *task = queue.q[queue.st];
+	queue.st = (queue.st + 1) % queue.max;
+	queue.size--;
+	return task;
+}
+
+
+TCB_TypeDef *current_task;
+uint32_t TASK_ID = 1;
+
+void __create_task(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
+
+}
+
+
+
+void kmain(void)
+{
+	__sys_init();
+	__move_to_user();
+	__init_dev_table();
+	
 	
 
 	kprintf("___________END MAIN___________\n");

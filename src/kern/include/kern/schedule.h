@@ -30,6 +30,14 @@
  
 #ifndef __SCHEDULE_H
 #define __SCHEDULE_H
+#define DUMMY_XPSR  0x01000000U
+
+#define READY 1
+#define RUNNING 2
+#define TERMINATED 3
+#define KILLED 4
+
+#define MAX_TASK 5
 
 #endif
 
