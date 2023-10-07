@@ -67,6 +67,9 @@ void syscall(uint32_t *svc_args)
 			uint32_t size = (uint32_t)svc_args[2];
 			__sys_read(fd,data,size);
 			break;
+		case SYS_yield:
+			SCB->ICSR |= (1 << 28); // set PendSV bit
+			break;				
 		case SYS_write:
 			kprintf("Will call __sys_write\n");
 			break;
@@ -83,9 +86,6 @@ void syscall(uint32_t *svc_args)
 		case SYS___time:
 			kprintf("Will call __sys_time\n");
 			break;
-		case SYS_yield:
-			kprintf("Will call __sys_yield\n");
-			break;				
 		/* return error code see error.h and errmsg.h ENOSYS sys_errlist[ENOSYS]*/	
 		default: ;
 	}
