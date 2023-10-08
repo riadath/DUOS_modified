@@ -217,4 +217,5 @@ __attribute__((weak)) void __delay_ms(uint32_t);
 * Functions on FPU
 **/
 void __enable_fpu(void);
+void __set_pending(uint8_t);
 #endif

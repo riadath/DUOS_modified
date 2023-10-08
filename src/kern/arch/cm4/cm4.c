@@ -32,6 +32,7 @@
 #include <clock.h>
 #include <syscall.h>
 volatile static uint32_t __mscount;
+extern volatile uint8_t _if_pending = 0;
 /************************************************************************************
 * __SysTick_init(uint32_t reload) 
 * Function initialize the SysTick clock. The function with a weak attribute enables 
@@ -87,25 +88,25 @@ __attribute__((weak)) void __updateSysTick(uint32_t count)
 * redefining the function to change its characteristics whenever necessary.
 **************************************************************************************/
 
-__attribute__((weak)) uint32_t __getTime(void)
-{
+__attribute__((weak)) uint32_t __getTime(void){
     return (__mscount+(SYSTICK->LOAD-SYSTICK->VAL)/(PLL_N*1000));
 }
-__attribute__((weak)) void SysTick_Handler()
-{
-    __mscount+=(SYSTICK->LOAD)/(PLL_N*1000);
-}
 
-__attribute__((weak)) void __delay_ms(uint32_t ms)
-{
+__attribute__((weak)) void __delay_ms(uint32_t ms){
     uint32_t start = __getTime();
     while((__getTime()-start)<ms);
 }
 
-
-void __enable_fpu()
-{
+void __enable_fpu(){
     SCB->CPACR |= ((0xF<<20));
 }
 
 
+__attribute__((weak)) void SysTick_Handler(){
+    __mscount+=(SYSTICK->LOAD)/(PLL_N*1000);
+    if(_if_pending) SCB->ICSR |= (1 << 28); // set PendSV bit
+}
+
+void __set_pending(uint8_t if_pending){
+    _if_pending = if_pending;
+}
