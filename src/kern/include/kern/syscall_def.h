@@ -151,5 +151,7 @@
 #define SYS_sync         118
 #define SYS_reboot       119
 #define SYS_yield        120	
+#define SYS_start        121
+
 
 #endif /*End of SYSCALL_DEF_H */

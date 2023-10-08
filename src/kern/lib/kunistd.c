@@ -32,6 +32,19 @@
 /* Add your functions here */
 extern uint32_t device_count;
 
+void __sys_start_task(uint32_t psp){
+    kprintf("Inside Start Task %d\n",psp);
+	__asm volatile ("MOV R0, %0"
+		:
+		:"r" (psp)
+	);
+	__asm volatile ("LDMIA R0!,{R4-R11}");
+	__asm volatile ("MSR PSP, R0");
+	__asm volatile ("ISB 0xf" ::: "memory");
+	__asm volatile ("MOV LR, 0xFFFFFFFD");
+	__asm volatile ("BX LR");
+}
+
 void __sys_open(char *name,uint8_t t_access, uint32_t *op_addr){
     strcpy(device_list[device_count].name,name);
     device_list[device_count].t_ref++;

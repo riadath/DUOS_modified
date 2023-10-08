@@ -44,5 +44,6 @@ void __sys_open(char *,uint8_t,uint32_t *);
 void __sys_close(uint32_t *);
 void __sys_reboot(void);
 void __sys_read(uint8_t,char **,uint32_t);
+void __sys_start_task(uint32_t);
 #endif /* KERN_UNISTD_H */
 

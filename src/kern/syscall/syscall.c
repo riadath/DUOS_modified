@@ -34,6 +34,8 @@
 #include <errmsg.h>
 #include <kstdio.h>
 #include <kunistd.h>
+
+
 void syscall(uint32_t *svc_args)
 {
 /* The SVC_Handler calls this function to evaluate and execute the actual function */
@@ -66,6 +68,10 @@ void syscall(uint32_t *svc_args)
 			char **data = (char **)svc_args[1];
 			uint32_t size = (uint32_t)svc_args[2];
 			__sys_read(fd,data,size);
+			break;
+		case SYS_start:
+			uint32_t psp = (uint32_t)svc_args[0];
+			__sys_start_task(psp);
 			break;
 		case SYS_yield:
 			SCB->ICSR |= (1 << 28); // set PendSV bit
