@@ -29,8 +29,6 @@ TCB_TypeDef* pop(){
 	return task;
 }
 
-
-
 //-------------scheduling functions----------------
 
 void __schedule(void){
@@ -42,8 +40,6 @@ void __schedule(void){
     TCB_TypeDef *front = pop();
 	current_task = front;
     current_task->status = RUNNING;
-    // if(current_task->task_id != 4)
-    //     print_task_info(current_task);
     return;
 }
 
@@ -157,8 +153,5 @@ void print_entire_queue(void){
 void print_task_info(TCB_TypeDef *task){
 	kprintf("_____________TASK INFO_____________\n");
 	kprintf("Task ID = %d\n",task->task_id);
-	kprintf("Task PSP = %x\n",task->psp);
-	kprintf("Task status = %d\n",task->status);
-	kprintf("Task runnable = %x\n",task->runnable);
 	kprintf("\n");
 }

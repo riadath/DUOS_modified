@@ -48,13 +48,7 @@
 #define TASK_STACK_START         KERNEL_STACK_END
 #define TASK_STACK_SIZE          ( (1) * (1024) ) // 1KB
 
-/*#define T1_STACK_START           SRAM_END
-#define T2_STACK_START           ( (SRAM_END) - (1 * SIZE_TASK_STACK) )
-#define T3_STACK_START           ( (SRAM_END) - (2 * SIZE_TASK_STACK) )
-#define T4_STACK_START           ( (SRAM_END) - (3 * SIZE_TASK_STACK) )
-#define IDLE_STACK_START         ( (SRAM_END) - (4 * SIZE_TASK_STACK) )
-#define SCHED_STACK_START        ( (SRAM_END) - (5 * SIZE_TASK_STACK) )
-*/
+
 #define TICK_HZ 1000U
 
 #define HSI_CLOCK         		16000000U

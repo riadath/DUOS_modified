@@ -115,7 +115,7 @@ void SVC_Tester(void){
 
 
 //-------------global----------------
-#define STOP 		100
+#define STOP 		100000
 #define TASK_COUNT 	10
 TCB_TypeDef __task[MAX_TASKS],__sleep;
 
@@ -125,10 +125,11 @@ void task_1(void){
 	uint32_t value;
 	uint32_t inc_count=0;
 	uint32_t pid = getpid();
+	kprintf("___________________Task %d___________________\n",pid-1);
 	while(1){
-		value=GLOBAL_COUNT;
+		value = GLOBAL_COUNT;
 		value++;
-		retarted_dealy();
+		// retarted_dealy();
 		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
 			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
 		} else{
@@ -169,7 +170,6 @@ void kmain(void){
 	__create_task(&__sleep,sleep_state,(uint32_t*)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
 	__set_sleep(&__sleep);
 		
-	
 
 
 	__set_pending(1);
