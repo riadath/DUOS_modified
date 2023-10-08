@@ -115,13 +115,74 @@ void SVC_Tester(void){
 
 
 //-------------global----------------
+#define STOP 100
 TCB_TypeDef __task[MAX_TASKS],__sleep;
 
-
+uint32_t GLOBAL_COUNT = 0;
 void task_1(void){
-	kprintf("_____________Task 1_____________\n");
-	// while(1);
+	kprintf("start tast 1 started\n");
+	uint32_t value;
+	uint32_t inc_count=0;
+	kprintf("start tast 1 started\n");
+	while(1){
+		value=GLOBAL_COUNT;
+		value++;
+		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
+			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
+		} else{
+			GLOBAL_COUNT=value;
+			inc_count++;
+		}
+		if(GLOBAL_COUNT >= STOP){
+			kprintf("Total increment done by task STUFF is: %d\n\r",inc_count);
+			break;
+		}
+	}
+	task_exit();
 }
+void task_2(void){
+	kprintf("start tast 2 started\n");
+	uint32_t value;
+	uint32_t inc_count=0;
+	kprintf("start tast 2 started\n");
+	while(1){
+		value=GLOBAL_COUNT;
+		value += 1;
+		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
+			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
+		} else{
+			GLOBAL_COUNT=value;
+			inc_count++;
+		}
+		if(GLOBAL_COUNT >= STOP){
+			kprintf("Total increment done by task STUFF is: %d\n\r",inc_count);
+			break;
+		}
+	}
+	task_exit();
+}
+void task_3(void){
+	kprintf("start tast 3 started\n");
+	uint32_t value;
+	uint32_t inc_count=0;
+	kprintf("start tast 3 started\n");
+	while(1){
+		value=GLOBAL_COUNT;
+		value++;
+		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
+			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
+		} else{
+			GLOBAL_COUNT=value;
+			inc_count++;
+		}
+		if(GLOBAL_COUNT >= STOP){
+			kprintf("Total increment done by task STUFF is: %d\n\r",inc_count);
+			break;
+		}
+	}
+	task_exit();
+}
+
 void sleep_state(void){
 	kprintf("Sleeping\n");
 	while(1);
@@ -129,138 +190,27 @@ void sleep_state(void){
 
 
 
-void init_queue(void){
-	queue.size = 0;
-	queue.max = MAX_TASKS;
-	queue.st = 0;
-	queue.ed = -1;
-}
-
-void queue_add(TCB_TypeDef *task){
-	if (queue.size == queue.max){
-		return;
-	}
-	queue.ed = (queue.ed + 1) % queue.max;
-	queue.q[queue.ed] = task;
-	queue.size++;
-}
-TCB_TypeDef* pop(){
-	if (queue.size == 0){
-		queue_add(sleep_task);
-	}
-
-	TCB_TypeDef *task = queue.q[queue.st];
-	queue.st = (queue.st + 1) % queue.max;
-	queue.size--;
-	return task;
-}
-
-
-
-//-------------scheduling functions----------------
-
-void __schedule(void){
-    if(current_task->status == RUNNING){
-        current_task->status = READY;
-        queue_add(current_task);
-    }
-
-    TCB_TypeDef *front = pop();
-	current_task = front;
-    current_task->status = RUNNING;
-    return;
-}
-void __create_task(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
-	tcb->magic_number = 0xFECABAA0;
-	tcb->task_id = TASK_ID++;
-	tcb->status = READY;
-	tcb->execution_time = 0;
-	tcb->waiting_time = 0;
-	tcb->digital_sinature = 0x00000001;
-	tcb->runnable = task;
-
-	tcb->psp = stack_start;
-	*(--tcb->psp) = DUMMY_XPSR; //xPSR
-	*(--tcb->psp) = (uint32_t)task; //PC
-	*(--tcb->psp) = 0xFFFFFFFD; //LR
-	
-	//store R0 - R3, R12
-	for(int i = 0; i < 5; i++) *(--tcb->psp) = 0x00000000;
-	*(--tcb->psp) = (uint32_t)tcb;
-	//store R4 - R11
-	for(int i = 0; i < 7; i++) *(--tcb->psp) = 0x00000000;
-}
-
-void retarted_dealy(void){
-	int x = 13423423;
-	while(x--)__asm volatile("nop");
-}
-
-void __start_task(void){
-
-	if(queue.size == 0){
-		return;
-	}
-
-	current_task = pop(); //current task = front of queue
-
-	// print_task_info(current_task);
-	retarted_dealy();
-	
-	if(current_task->magic_number != 0xFECABAA0
-		|| current_task->digital_sinature != 0x00000001){
-		kprintf("Invalid task\n");
-		return;
-	}
-	current_task->status = RUNNING;
-
-
-	__asm volatile ("MOV R0, %0"
-		:
-		:"r" (current_task->psp)
-	);
-	__asm volatile ("LDMIA R0!,{R4-R11}");
-	__asm volatile ("MSR PSP, R0");
-	__asm volatile ("ISB 0xf" ::: "memory");
-	__asm volatile ("MOV LR, 0xFFFFFFFD");
-	__asm volatile ("BX LR");
-}
-
-void __set_sleep(TCB_TypeDef *task){
-	sleep_task = task;
-	return;
-}
-
-void print_task_info(TCB_TypeDef *task){
-	kprintf("_____________TASK INFO_____________\n");
-	// kprintf("Task magic number = %x\n",task->magic_number);
-	// kprintf("Task ID = %d\n",task->task_id);
-	// kprintf("Task execution time = %d\n",task->execution_time);
-	// kprintf("Task waiting time = %d\n",task->waiting_time);
-	// kprintf("Task digital sinature = %x\n",task->digital_sinature);
-	kprintf("Task PSP = %x\n",task->psp);
-	kprintf("Task status = %d\n",task->status);
-	kprintf("Task runnable = %x\n",task->runnable);
-	kprintf("\n");
-}
-
-
 void kmain(void){
 	__sys_init();
-	__init_dev_table();
 	__NVIC_SetPriority(SVCall_IRQn, 1);
 	__NVIC_SetPriority(SysTick_IRQn, 0x2);
 	__NVIC_SetPriority(PendSV_IRQn, 0xFF); 
+	
 	__move_to_user();
-	test();
-	while(1);
+
 	init_queue();
-	__create_task(__task,task_1,(uint32_t*)TASK_STACK_START );
-	queue_add(__task );
-	__create_task(__task + 1,task_1,(uint32_t*)TASK_STACK_START - TASK_STACK_SIZE);
+	
+	__create_task(__task,task_1,(uint32_t*)TASK_STACK_START);
+	__create_task(__task + 1,task_1,(uint32_t*)TASK_STACK_START - );
+	__create_task(__task + 2,task_2,(uint32_t*)TASK_STACK_START - TASK_STACK_SIZE);
+	__create_task(__task + 3,task_3,(uint32_t*)TASK_STACK_START - 2 * TASK_STACK_SIZE);
 	queue_add(__task + 1);
-	__create_task(&__sleep,sleep_state,(uint32_t*)TASK_STACK_START - 2 * TASK_STACK_SIZE);
+	queue_add(__task + 2);
+	queue_add(__task + 3);
+
+	__create_task(&__sleep,sleep_state,(uint32_t*)TASK_STACK_START - 10 * TASK_STACK_SIZE);
 	__set_sleep(&__sleep);
+
 
 
 	__set_pending(1);

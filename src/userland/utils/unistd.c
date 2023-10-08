@@ -91,5 +91,20 @@ void scanf(uint8_t fd,char **data,uint32_t size){
 	);
 }
 
-/* Write your highlevel I/O details */
+void yeild(void)
+{
+    __asm volatile("svc 120");
+}
+
+void task_exit(void)
+{
+    __asm volatile("stmdb r13!, {r5}");
+    __asm volatile (
+        "stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+        "svc 3\n"
+        "nop\n"
+        "ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+    );
+    yeild();
+}
 

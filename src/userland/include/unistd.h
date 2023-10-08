@@ -36,4 +36,6 @@ void fopen(char *name,uint8_t t_access, uint32_t *op_addr);
 void fclose(uint32_t *op_addr);
 void reboot(void);
 void scanf(uint8_t fd,char **data,uint32_t size);
+void task_exit(void);
+void yeild(void);
 #endif

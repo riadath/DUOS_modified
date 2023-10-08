@@ -49,12 +49,15 @@
 void init_queue(void);
 void queue_add(TCB_TypeDef *);
 TCB_TypeDef* pop(void);
-void print_entire_queue(void);
 
 void __schedule(void);
 void __create_task(TCB_TypeDef *, void(*task)(void), uint32_t *stack_start);
 void __set_sleep(TCB_TypeDef*);
 void __start_task(void);
+
+
+void print_task_info(TCB_TypeDef*);
+void print_entire_queue(void);
 #endif
 
 

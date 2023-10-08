@@ -31,6 +31,12 @@
 #ifndef _SYSCALL_H
 #define _SYSCALL_H
 #include <stdint.h>
+#include <syscall_def.h>
+#include <errno.h>
+#include <kstdio.h>
+#include <kunistd.h>
+#include <types.h>
+#include <schedule.h>
 void syscall(uint32_t *svc_args);
 #endif
 

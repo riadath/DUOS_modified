@@ -28,13 +28,10 @@
  * SUCH DAMAGE.
 */
 
-#include <syscall.h>
-#include <syscall_def.h>
-#include <errno.h>
-#include <errmsg.h>
-#include <kstdio.h>
-#include <kunistd.h>
 
+
+
+#include <syscall.h>
 
 void syscall(uint32_t *svc_args)
 {
@@ -76,6 +73,10 @@ void syscall(uint32_t *svc_args)
 		case SYS_yield:
 			SCB->ICSR |= (1 << 28); // set PendSV bit
 			break;				
+		case SYS__exit:
+			TCB_TypeDef* task = svc_args[16];
+			task->status = KILLED;
+			break;
 		case SYS_write:
 			kprintf("Will call __sys_write\n");
 			break;
@@ -83,16 +84,12 @@ void syscall(uint32_t *svc_args)
 			kprintf("Will call __sys_reboot\n");
 			__sys_reboot();
 			break;	
-		case SYS__exit:
-			kprintf("Will call __sys_exit\n");
-			break;
 		case SYS_getpid:
 			kprintf("Will call __sys_getpid\n");
 			break;
 		case SYS___time:
 			kprintf("Will call __sys_time\n");
 			break;
-		/* return error code see error.h and errmsg.h ENOSYS sys_errlist[ENOSYS]*/	
 		default: ;
 	}
 /* Handle SVC return here */

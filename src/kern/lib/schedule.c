@@ -29,19 +29,6 @@ TCB_TypeDef* pop(){
 	return task;
 }
 
-void print_entire_queue(void){
-	kprintf("Printint entire queue ___________\n");
-	kprintf("Queue size = %d\n",queue.size);
-	kprintf("Queue max = %d\n",queue.max);
-	kprintf("Queue st = %d\n",queue.st);
-	kprintf("Queue ed = %d\n",queue.ed);
-
-	for (int i = 0;i < queue.size;i++){
-		kprintf("Queue q[%d] = %x\n",i,queue.q[i]);
-		print_task_info(queue.q[i]);
-	}
-	kprintf("END QUEUE PRINT ___________\n");
-}
 
 
 //-------------scheduling functions----------------
@@ -55,6 +42,8 @@ void __schedule(void){
     TCB_TypeDef *front = pop();
 	current_task = front;
     current_task->status = RUNNING;
+    // if(current_task->task_id != 4)
+    //     print_task_info(current_task);
     return;
 }
 
@@ -79,10 +68,6 @@ void __create_task(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
 	for(int i = 0; i < 7; i++) *(--tcb->psp) = 0x00000000;
 }
 
-void retarted_dealy(void){
-	int x = 13423423;
-	while(x--)__asm volatile("nop");
-}
 
 void __start_task(void){
 
@@ -148,4 +133,32 @@ void __attribute__((naked)) PendSV_Handler(void){
 		"pop {lr}\n"
 		"bx lr\n"
 	);
+}
+
+
+void retarted_dealy(void){
+	int x = 134223;
+	while(x--)__asm volatile("nop");
+}
+
+void print_entire_queue(void){
+    kprintf("Printint entire queue ___________\n");
+    kprintf("Queue size = %d\n",queue.size);
+    kprintf("Queue max = %d\n",queue.max);
+    kprintf("Queue st = %d\n",queue.st);
+    kprintf("Queue ed = %d\n",queue.ed);
+
+    for (int i = 0;i < queue.size;i++){
+        kprintf("Queue q[%d] = %x\n",i,queue.q[i]);
+        print_task_info(queue.q[i]);
+    }
+    kprintf("END QUEUE PRINT ___________\n");
+}
+void print_task_info(TCB_TypeDef *task){
+	kprintf("_____________TASK INFO_____________\n");
+	kprintf("Task ID = %d\n",task->task_id);
+	kprintf("Task PSP = %x\n",task->psp);
+	kprintf("Task status = %d\n",task->status);
+	kprintf("Task runnable = %x\n",task->runnable);
+	kprintf("\n");
 }
