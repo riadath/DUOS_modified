@@ -137,7 +137,7 @@ void __attribute__((naked)) PendSV_Handler(void){
 
 
 void retarted_dealy(void){
-	int x = 134223;
+	int x = 100000;
 	while(x--)__asm volatile("nop");
 }
 

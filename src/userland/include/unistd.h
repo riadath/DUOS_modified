@@ -38,4 +38,5 @@ void reboot(void);
 void scanf(uint8_t fd,char **data,uint32_t size);
 void task_exit(void);
 void yeild(void);
+uint32_t getpid(void);
 #endif

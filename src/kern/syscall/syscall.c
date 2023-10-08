@@ -77,6 +77,11 @@ void syscall(uint32_t *svc_args)
 			TCB_TypeDef* task = svc_args[16];
 			task->status = KILLED;
 			break;
+		case SYS_getpid:
+			uint32_t pid = svc_args[10];	
+			task = svc_args[16];
+			__sys_getpid((unsigned int *)pid,task->task_id);
+			break;
 		case SYS_write:
 			kprintf("Will call __sys_write\n");
 			break;
@@ -84,9 +89,6 @@ void syscall(uint32_t *svc_args)
 			kprintf("Will call __sys_reboot\n");
 			__sys_reboot();
 			break;	
-		case SYS_getpid:
-			kprintf("Will call __sys_getpid\n");
-			break;
 		case SYS___time:
 			kprintf("Will call __sys_time\n");
 			break;

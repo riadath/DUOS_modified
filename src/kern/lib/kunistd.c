@@ -87,3 +87,8 @@ void __sys_read(uint8_t fd,char **data,uint32_t size){
             break;
     }
 }
+void __sys_getpid(unsigned int *val,uint16_t value)
+{
+	*val = value;
+	return ;
+}

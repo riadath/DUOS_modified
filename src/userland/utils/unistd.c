@@ -108,3 +108,16 @@ void task_exit(void)
     yeild();
 }
 
+uint32_t getpid(void)
+{
+    unsigned int pid = 0;
+    __asm volatile("mov r5, %[v]": : [v] "r" (&pid));
+    __asm volatile("stmdb r13!, {r5}");
+    __asm volatile (
+        "stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+        "svc 5\n"
+        "nop\n"
+        "ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
+    );
+    return (uint16_t) pid;
+}

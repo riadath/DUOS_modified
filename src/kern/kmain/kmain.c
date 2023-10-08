@@ -115,18 +115,20 @@ void SVC_Tester(void){
 
 
 //-------------global----------------
-#define STOP 100
+#define STOP 		100
+#define TASK_COUNT 	10
 TCB_TypeDef __task[MAX_TASKS],__sleep;
 
 uint32_t GLOBAL_COUNT = 0;
 void task_1(void){
-	kprintf("start tast 1 started\n");
+
 	uint32_t value;
 	uint32_t inc_count=0;
-	kprintf("start tast 1 started\n");
+	uint32_t pid = getpid();
 	while(1){
 		value=GLOBAL_COUNT;
 		value++;
+		retarted_dealy();
 		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
 			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
 		} else{
@@ -134,49 +136,8 @@ void task_1(void){
 			inc_count++;
 		}
 		if(GLOBAL_COUNT >= STOP){
-			kprintf("Total increment done by task STUFF is: %d\n\r",inc_count);
-			break;
-		}
-	}
-	task_exit();
-}
-void task_2(void){
-	kprintf("start tast 2 started\n");
-	uint32_t value;
-	uint32_t inc_count=0;
-	kprintf("start tast 2 started\n");
-	while(1){
-		value=GLOBAL_COUNT;
-		value += 1;
-		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
-			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
-		} else{
-			GLOBAL_COUNT=value;
-			inc_count++;
-		}
-		if(GLOBAL_COUNT >= STOP){
-			kprintf("Total increment done by task STUFF is: %d\n\r",inc_count);
-			break;
-		}
-	}
-	task_exit();
-}
-void task_3(void){
-	kprintf("start tast 3 started\n");
-	uint32_t value;
-	uint32_t inc_count=0;
-	kprintf("start tast 3 started\n");
-	while(1){
-		value=GLOBAL_COUNT;
-		value++;
-		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
-			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
-		} else{
-			GLOBAL_COUNT=value;
-			inc_count++;
-		}
-		if(GLOBAL_COUNT >= STOP){
-			kprintf("Total increment done by task STUFF is: %d\n\r",inc_count);
+			kprintf("Total increment done by task %d is: %d\n\r",pid,inc_count);
+
 			break;
 		}
 	}
@@ -200,17 +161,15 @@ void kmain(void){
 
 	init_queue();
 	
-	__create_task(__task,task_1,(uint32_t*)TASK_STACK_START);
-	__create_task(__task + 1,task_1,(uint32_t*)TASK_STACK_START - );
-	__create_task(__task + 2,task_2,(uint32_t*)TASK_STACK_START - TASK_STACK_SIZE);
-	__create_task(__task + 3,task_3,(uint32_t*)TASK_STACK_START - 2 * TASK_STACK_SIZE);
-	queue_add(__task + 1);
-	queue_add(__task + 2);
-	queue_add(__task + 3);
-
-	__create_task(&__sleep,sleep_state,(uint32_t*)TASK_STACK_START - 10 * TASK_STACK_SIZE);
+	for(int i = 0;i < 10;i++){
+		__create_task(__task + i,task_1,(uint32_t*)TASK_STACK_START - i * TASK_STACK_SIZE);
+		queue_add(__task + i);
+	}
+	
+	__create_task(&__sleep,sleep_state,(uint32_t*)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
 	__set_sleep(&__sleep);
-
+		
+	
 
 
 	__set_pending(1);

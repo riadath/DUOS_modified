@@ -58,6 +58,7 @@ void __start_task(void);
 
 void print_task_info(TCB_TypeDef*);
 void print_entire_queue(void);
+void retarted_dealy(void);
 #endif
 
 
