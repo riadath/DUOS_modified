@@ -50,6 +50,7 @@ typedef struct task_tcb{
 	uint32_t digital_sinature; //current value is 0x00000001
 	void (*runnable)(void); //task function
 } TCB_TypeDef;
+
 typedef struct ready_queue {
 	int size;
 	int max;

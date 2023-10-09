@@ -39,7 +39,6 @@ void syscall(uint32_t *svc_args)
 /* Take care of return value or code */
 
 	uint16_t callno = ((char *)svc_args[6])[-2];
-	
 	switch(callno)
 	{
 		/* Write your code to call actual function (kunistd.h/c or times.h/c and handle the return value(s) */
@@ -66,6 +65,11 @@ void syscall(uint32_t *svc_args)
 			uint32_t size = (uint32_t)svc_args[2];
 			__sys_read(fd,data,size);
 			break;
+		case SYS_write:
+			fd = (uint8_t)svc_args[0];
+			char *toWrite = (char *)svc_args[1];
+			__sys_write(fd,toWrite);
+			break;
 		case SYS_start:
 			uint32_t psp = (uint32_t)svc_args[0];
 			__sys_start_task(psp);
@@ -82,15 +86,13 @@ void syscall(uint32_t *svc_args)
 			task = svc_args[16];
 			__sys_getpid((unsigned int *)pid,task->task_id);
 			break;
-		case SYS_write:
-			kprintf("Will call __sys_write\n");
-			break;
 		case SYS_reboot:
 			kprintf("Will call __sys_reboot\n");
 			__sys_reboot();
 			break;	
 		case SYS___time:
-			kprintf("Will call __sys_time\n");
+			uint32_t time = svc_args[0];
+			__sys_get_time((uint32_t *)time);
 			break;
 		default: ;
 	}

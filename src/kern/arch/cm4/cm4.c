@@ -32,7 +32,7 @@
 #include <clock.h>
 #include <syscall.h>
 volatile static uint32_t __mscount;
-extern volatile uint8_t _if_pending = 0;
+extern volatile uint8_t __PendSV_Flag = 0;
 /************************************************************************************
 * __SysTick_init(uint32_t reload) 
 * Function initialize the SysTick clock. The function with a weak attribute enables 
@@ -104,9 +104,9 @@ void __enable_fpu(){
 
 __attribute__((weak)) void SysTick_Handler(){
     __mscount+=(SYSTICK->LOAD)/(PLL_N*1000);
-    if(_if_pending) SCB->ICSR |= (1 << 28); // set PendSV bit
+    if(__PendSV_Flag) SCB->ICSR |= (1 << 28); // set PendSV bit
 }
 
-void __set_pending(uint8_t if_pending){
-    _if_pending = if_pending;
+void __set_pending(uint8_t flag){
+    __PendSV_Flag = flag;
 }

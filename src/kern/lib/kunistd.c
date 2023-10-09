@@ -28,12 +28,11 @@
  * SUCH DAMAGE.
  */
 #include <kunistd.h>
-
+#include <cm4.h>
 /* Add your functions here */
 extern uint32_t device_count;
 
 void __sys_start_task(uint32_t psp){
-    kprintf("Inside Start Task %d\n",psp);
 	__asm volatile ("MOV R0, %0"
 		:
 		:"r" (psp)
@@ -87,8 +86,22 @@ void __sys_read(uint8_t fd,char **data,uint32_t size){
             break;
     }
 }
+void __sys_write(uint8_t fd,char *data){
+    switch(fd)
+    {
+        case STDOUT_FILENO:
+            _USART_WRITE(USART2,data);
+            break;
+    }
+}
+
 void __sys_getpid(unsigned int *val,uint16_t value)
 {
 	*val = value;
 	return ;
+}
+
+void __sys_get_time(uint32_t *time){
+    *time = __getTime();
+    // TODO
 }

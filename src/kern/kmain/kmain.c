@@ -44,6 +44,7 @@
 #include <nvic.h>
 #include <test_interrupt.h> // test interrupt function
 #include <unistd.h>
+#include <ustdio.h>
 
 //includes for svc and pendsvc
 #include <syscall.h>
@@ -80,16 +81,11 @@ void __move_to_user(void){
 	);
 }
 
-void unpriv (void) {
-	__asm volatile ("MRS R0, CONTROL");
-	__asm volatile ("ORRS R0, R0, #1");
-	__asm volatile ("MSR CONTROL, R0");
-}
 
 void SVC_Tester(void){
 	// test scanf
 	char *data = "temp a ja e thakuk";
-	scanf(0,&data,5);
+	read_user(0,&data,5);
 	kprintf("data(main) = %s\n",data);
 
 	
@@ -115,13 +111,12 @@ void SVC_Tester(void){
 
 
 //-------------global----------------
-#define STOP 		100000
+#define STOP 		1000000
 #define TASK_COUNT 	10
 TCB_TypeDef __task[MAX_TASKS],__sleep;
 
 uint32_t GLOBAL_COUNT = 0;
 void task_1(void){
-
 	uint32_t value;
 	uint32_t inc_count=0;
 	uint32_t pid = getpid();
@@ -129,7 +124,6 @@ void task_1(void){
 	while(1){
 		value = GLOBAL_COUNT;
 		value++;
-		// retarted_dealy();
 		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
 			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
 		} else{
@@ -138,11 +132,11 @@ void task_1(void){
 		}
 		if(GLOBAL_COUNT >= STOP){
 			kprintf("Total increment done by task %d is: %d\n\r",pid,inc_count);
-
 			break;
 		}
 	}
 	task_exit();
+
 }
 
 void sleep_state(void){
@@ -154,15 +148,18 @@ void sleep_state(void){
 
 void kmain(void){
 	__sys_init();
+
+
 	__NVIC_SetPriority(SVCall_IRQn, 1);
-	__NVIC_SetPriority(SysTick_IRQn, 0x2);
+	__NVIC_SetPriority(SysTick_IRQn, 0xFF);
 	__NVIC_SetPriority(PendSV_IRQn, 0xFF); 
-	
 	__move_to_user();
+
+
 
 	init_queue();
 	
-	for(int i = 0;i < 10;i++){
+	for(int i = 0;i < TASK_COUNT;i++){
 		__create_task(__task + i,task_1,(uint32_t*)TASK_STACK_START - i * TASK_STACK_SIZE);
 		queue_add(__task + i);
 	}
@@ -173,8 +170,7 @@ void kmain(void){
 
 
 	__set_pending(1);
-	__start_task();
-	
+	start_exec();
 	kprintf("___________END MAIN___________\n");
 	while(1);
 }

@@ -35,8 +35,11 @@
 void fopen(char *name,uint8_t t_access, uint32_t *op_addr);
 void fclose(uint32_t *op_addr);
 void reboot(void);
-void scanf(uint8_t fd,char **data,uint32_t size);
+void read_user(uint8_t fd,char **data,uint32_t size);
+void write_user(uint8_t fd,char *data);
 void task_exit(void);
 void yeild(void);
 uint32_t getpid(void);
+void start_task(uint32_t psp);
+uint32_t get_time(void);
 #endif

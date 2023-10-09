@@ -1,7 +1,8 @@
 #include <schedule.h>
 ReadyQ_TypeDef queue;
+
 TCB_TypeDef *current_task,*sleep_task;
-uint32_t TASK_ID = 1;
+uint32_t TASK_ID = 1000;
 
 void init_queue(void){
 	queue.size = 0;
@@ -50,6 +51,7 @@ void __create_task(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
 	tcb->execution_time = 0;
 	tcb->waiting_time = 0;
 	tcb->digital_sinature = 0x00000001;
+	
 	tcb->runnable = task;
 
 	tcb->psp = stack_start;
@@ -60,39 +62,21 @@ void __create_task(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
 	//store R0 - R3, R12
 	for(int i = 0; i < 5; i++) *(--tcb->psp) = 0x00000000;
 	*(--tcb->psp) = (uint32_t)tcb;
-	//store R4 - R11
+	//store R4 - R10
 	for(int i = 0; i < 7; i++) *(--tcb->psp) = 0x00000000;
 }
 
 
-void __start_task(void){
-
-	if(queue.size == 0){
-		return;
-	}
-
-	current_task = pop(); //current task = front of queue
-
-	// print_task_info(current_task);
-	retarted_dealy();
-	
+void start_exec(void){
+	if(queue.size == 0)return;
+	current_task = pop(); 
 	if(current_task->magic_number != 0xFECABAA0
-		|| current_task->digital_sinature != 0x00000001){
+	|| current_task->digital_sinature != 0x00000001){
 		kprintf("Invalid task\n");
 		return;
 	}
 	current_task->status = RUNNING;
-
-
-	__asm volatile ("MOV R0, %0"
-		:
-		:"r" (current_task->psp)
-	);
-	__asm volatile ("LDMIA R0!,{R4-R11}");
-	__asm volatile ("MSR PSP, R0");
-	__asm volatile ("ISB 0xf" ::: "memory");
-	__asm volatile ("MOV LR, 0xFFFFFFFD");
-	__asm volatile ("BX LR");
+	start_task(current_task->psp);
 }
 
 void __set_sleep(TCB_TypeDef *task){
@@ -102,6 +86,7 @@ void __set_sleep(TCB_TypeDef *task){
 
 void __attribute__((naked)) PendSV_Handler(void){
 	//Clear all pending interrupts
+	uint32_t x;
 	SCB->ICSR |= (1<<27);
 
 	//save current context
@@ -131,11 +116,6 @@ void __attribute__((naked)) PendSV_Handler(void){
 	);
 }
 
-
-void retarted_dealy(void){
-	int x = 100000;
-	while(x--)__asm volatile("nop");
-}
 
 void print_entire_queue(void){
     kprintf("Printint entire queue ___________\n");

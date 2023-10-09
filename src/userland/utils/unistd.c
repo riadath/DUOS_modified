@@ -29,7 +29,8 @@
  */
  
 #include <unistd.h>
-
+#include <syscall_def.h>
+#include <kstdio.h>
 void fopen(char *name,uint8_t t_access, uint32_t *op_addr){
 	__asm volatile (
 		"mov r0, %[x]\n"
@@ -43,11 +44,10 @@ void fopen(char *name,uint8_t t_access, uint32_t *op_addr){
 		: [x] "r" (op_addr)
 	);
 
-	__asm volatile (
-        "stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-        "svc #45\n"
-        "ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-    );
+	__asm volatile ("PUSH {r4-r11, ip, lr}");
+	__asm volatile("svc %0" : : "i" (SYS_open));
+
+	__asm volatile ("POP {r4-r11, ip, lr}");
 
 }
 
@@ -57,22 +57,20 @@ void fclose(uint32_t *op_addr){
 		:
 		: [x] "r" (op_addr)
 	);
-	__asm volatile (
-		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-		"svc #49\n"
-		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-	);
+	__asm volatile ("PUSH {r4-r11, ip, lr}");
+	__asm volatile("svc %0" : : "i" (SYS_close));
+
+	__asm volatile ("POP {r4-r11, ip, lr}");
 }
 
 void reboot(void){
-	__asm volatile (
-		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-		"svc #119\n"
-		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-	);
+	__asm volatile ("PUSH {r4-r11, ip, lr}");
+	__asm volatile("svc %0" : : "i" (SYS_reboot));
+
+	__asm volatile ("POP {r4-r11, ip, lr}");
 }
 
-void scanf(uint8_t fd,char **data,uint32_t size){
+void read_user(uint8_t fd,char **data,uint32_t size){
 	__asm volatile (
 		"mov r0, %[x]\n"
 		"mov r1, %[y]\n"
@@ -84,27 +82,36 @@ void scanf(uint8_t fd,char **data,uint32_t size){
 		:
 		: [x] "r" (size)
 	);
-	__asm volatile (
-		"stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-		"svc #50\n"
-		"ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-	);
-}
+	__asm volatile ("PUSH {r4-r11, ip, lr}");
+	__asm volatile("svc %0" : : "i" (SYS_read));
 
+	__asm volatile ("POP {r4-r11, ip, lr}");
+}
+void write_user(uint8_t fd,char *data){
+	__asm volatile (
+		"mov r0, %[x]\n"
+		"mov r1, %[y]\n"
+		:
+		: [x] "r" (fd), [y] "r" (data)
+	);
+    __asm volatile("stmdb r13!, {r5}");
+
+	__asm volatile ("PUSH {r4-r11, ip, lr}");
+	__asm volatile("svc %0" : : "i" (SYS_write));
+	__asm volatile ("POP {r4-r11, ip, lr}");
+}
 void yeild(void)
 {
-    __asm volatile("svc 120");
+	__asm volatile("svc %0" : : "i" (SYS_yield));
+
 }
 
 void task_exit(void)
 {
-    __asm volatile("stmdb r13!, {r5}");
-    __asm volatile (
-        "stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-        "svc 3\n"
-        "nop\n"
-        "ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-    );
+    __asm volatile("PUSH {r5}");
+    __asm volatile ("PUSH {r4-r11, ip, lr}");
+	__asm volatile("svc %0" : : "i" (SYS__exit));
+	__asm volatile ("POP {r4-r11, ip, lr}");
     yeild();
 }
 
@@ -112,12 +119,31 @@ uint32_t getpid(void)
 {
     unsigned int pid = 0;
     __asm volatile("mov r5, %[v]": : [v] "r" (&pid));
-    __asm volatile("stmdb r13!, {r5}");
-    __asm volatile (
-        "stmdb r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-        "svc 5\n"
-        "nop\n"
-        "ldmia r13!, {r4, r5, r6, r7, r8, r9, r10, r11, ip, lr}\n"
-    );
+    __asm volatile("PUSH {r5}");
+
+    __asm volatile ("PUSH {r4-r11, ip, lr}");
+	__asm volatile("svc %0" : : "i" (SYS_getpid));
+
+	__asm volatile ("POP {r4-r11, ip, lr}");
     return (uint16_t) pid;
+}
+
+void start_task(uint32_t psp){
+	__asm volatile ("MOV R0, %0"
+		:
+		:"r" (psp)
+	);
+	__asm volatile ("PUSH {r4-r11, ip, lr}");
+	__asm volatile("svc %0" : : "i" (SYS_start));
+	__asm volatile ("POP {r4-r11, ip, lr}");
+
+}
+
+uint32_t get_time(void){
+    uint32_t time = 0;
+	__asm volatile("mov r0, %[x]": : [x] "r" (&time));
+	__asm volatile ("PUSH {r4-r11, ip, lr}");
+	__asm volatile("svc %0" : : "i" (SYS___time));
+	__asm volatile ("POP {r4-r11, ip, lr}");
+	return time;
 }
