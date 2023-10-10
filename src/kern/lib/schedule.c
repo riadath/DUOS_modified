@@ -52,7 +52,6 @@ void __create_task(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
 	tcb->waiting_time = 0;
 	tcb->digital_sinature = 0x00000001;
 	
-	tcb->runnable = task;
 
 	tcb->psp = stack_start;
 	*(--tcb->psp) = DUMMY_XPSR; //xPSR
