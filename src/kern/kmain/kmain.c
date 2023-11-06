@@ -26,7 +26,6 @@
  * LIABILITY, OR TORT (INCLUDING NEGLIGENCE ORNG IN ANY WAY
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
-
  */
  
 #include <sys_init.h>
@@ -39,6 +38,7 @@
 #include <gpio.h>
 #include <stm32_peps.h>
 #include <dev_table.h>
+
 //new includes for assignment 2
 #include <sys.h> // EXTI Config
 #include <nvic.h>
@@ -80,7 +80,6 @@ void __move_to_user(void){
 			"isb\n"
 	);
 }
-
 
 void SVC_Tester(void){
 	// test scanf

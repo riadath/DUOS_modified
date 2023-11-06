@@ -134,7 +134,7 @@ void start_task(uint32_t psp){
 		:"r" (psp)
 	);
 	__asm volatile ("PUSH {r4-r11, ip, lr}");
-	__asm volatile("svc %0" : : "i" (SYS_start_task));
+	__asm volatile("svc %0" : : "i" (SYS_start));
 	__asm volatile ("POP {r4-r11, ip, lr}");
 
 }
