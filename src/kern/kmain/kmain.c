@@ -49,13 +49,7 @@
 //includes for svc and pendsvc
 #include <syscall.h>
 #include <syscall_def.h>
-
-
-
-void SVC_Handler_Main( uint32_t *svc_args )
-{
-	syscall(svc_args);
-}
+#include <schedule_fcfs.h>
 
 void print_device_list(){
 	kprintf("\n\n______________________\n\n");
@@ -67,20 +61,6 @@ void print_device_list(){
 		kprintf("\n");
 	}
 }
-
-void __move_to_user(void){
-	uint32_t psp_stack[1024];
-    PSP_Init(psp_stack + 1024);
-   __asm volatile (
-		".global PSP_Init\n"
-		"PSP_Init:\n"
-			"msr psp, r0\n"
-			"mov r0, #3\n"
-			"msr control, r0\n"
-			"isb\n"
-	);
-}
-
 void SVC_Tester(void){
 	// test scanf
 	char *data = "temp a ja e thakuk";
@@ -108,41 +88,28 @@ void SVC_Tester(void){
 }
 
 
+void SVC_Handler_Main( uint32_t *svc_args ){
+	syscall(svc_args);
+}
+void __move_to_user(void){
+	uint32_t psp_stack[1024];
+    PSP_Init(psp_stack + 1024);
+   __asm volatile (
+		".global PSP_Init\n"
+		"PSP_Init:\n"
+			"msr psp, r0\n"
+			"mov r0, #3\n"
+			"msr control, r0\n"
+			"isb\n"
+	);
+}
 
-//-------------global----------------
+
+
 #define STOP 		1000000
 #define TASK_COUNT 	10
-TCB_TypeDef __task[MAX_TASKS],__sleep;
-
-uint32_t GLOBAL_COUNT = 0;
-void task_1(void){
-	uint32_t value;
-	uint32_t inc_count=0;
-	uint32_t pid = getpid();
-	kprintf("___________________Task %d___________________\n",pid-1);
-	while(1){
-		value = GLOBAL_COUNT;
-		value++;
-		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
-			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
-		} else{
-			GLOBAL_COUNT=value;
-			inc_count++;
-		}
-		if(GLOBAL_COUNT >= STOP){
-			kprintf("Total increment done by task %d is: %d\n\r",pid,inc_count);
-			break;
-		}
-	}
-	task_exit();
-
-}
-
-void sleep_state(void){
-	kprintf("Sleeping\n");
-	while(1);
-}
-
+TCB_TypeDef task_fcfs[MAX_TASK],sleep_fcfs;
+uint32_t GLOBAL_COUNT_FCFS = 0;
 
 
 void kmain(void){
@@ -153,24 +120,9 @@ void kmain(void){
 	__NVIC_SetPriority(SysTick_IRQn, 0xFF);
 	__NVIC_SetPriority(PendSV_IRQn, 0xFF); 
 	__move_to_user();
-
-
-
-	init_queue();
 	
-	for(int i = 0;i < TASK_COUNT;i++){
-		__create_task(__task + i,task_1,(uint32_t*)TASK_STACK_START - i * TASK_STACK_SIZE);
-		queue_add(__task + i);
-	}
+
 	
-	__create_task(&__sleep,sleep_state,(uint32_t*)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
-	__set_sleep(&__sleep);
-		
-
-
-	__set_pending(1);
-	start_exec();
-	kprintf("___________END MAIN___________\n");
 	while(1);
 }
 

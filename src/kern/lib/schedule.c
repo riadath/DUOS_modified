@@ -1,4 +1,5 @@
 #include <schedule.h>
+
 ReadyQ_TypeDef queue;
 
 TCB_TypeDef *current_task,*sleep_task;
@@ -44,6 +45,7 @@ void __schedule(void){
     return;
 }
 
+
 void __create_task(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
 	tcb->magic_number = 0xFECABAA0;
 	tcb->task_id = TASK_ID++;
@@ -83,54 +85,85 @@ void __set_sleep(TCB_TypeDef *task){
 	return;
 }
 
-void __attribute__((naked)) PendSV_Handler(void){
-	//Clear all pending interrupts
-	uint32_t x;
-	SCB->ICSR |= (1<<27);
+// void __attribute__((naked)) PendSV_Handler(void){
+// 	//Clear all pending interrupts
+// 	uint32_t x;
+// 	SCB->ICSR |= (1<<27);
 
-	//save current context
-	__asm volatile(
-		"mrs r0, psp\n"
-		"stmdb r0!, {r4-r11}\n"
-		"push {lr}\n"
-	);
+// 	//save current context
+// 	__asm volatile(
+// 		"mrs r0, psp\n"
+// 		"stmdb r0!, {r4-r11}\n"
+// 		"push {lr}\n"
+// 	);
 
-	__asm volatile("mov %0, r0" 
-		: "=r" (current_task->psp)
-		:
-	);
-	//Schedule next task
-	__schedule();
+// 	__asm volatile("mov %0, r0" 
+// 		: "=r" (current_task->psp)
+// 		:
+// 	);
+// 	//Schedule next task
+// 	__schedule();
 
-	__asm volatile(
-		"mov r0, %0" 
-		: 
-		:"r"(current_task->psp)
-	);
-	__asm volatile(
-		"ldmia r0!,{r4-r11}\n"
-		"msr psp, r0\n"
-		"pop {lr}\n"
-		"bx lr\n"
-	);
+// 	__asm volatile(
+// 		"mov r0, %0" 
+// 		: 
+// 		:"r"(current_task->psp)
+// 	);
+// 	__asm volatile(
+// 		"ldmia r0!,{r4-r11}\n"
+// 		"msr psp, r0\n"
+// 		"pop {lr}\n"
+// 		"bx lr\n"
+// 	);
+// }
+
+//-------------helper functions----------------
+#define STOP 		1000000
+#define TASK_COUNT 	10
+TCB_TypeDef __task[MAX_TASK],__sleep;
+
+uint32_t GLOBAL_COUNT = 0;
+
+void task_1(void){
+	uint32_t value;
+	uint32_t inc_count=0;
+	uint32_t pid = getpid();
+	kprintf("___________________Task %d___________________\n",pid-1);
+	while(1){
+		value = GLOBAL_COUNT;
+		value++;
+		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
+			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
+		} else{
+			GLOBAL_COUNT=value;
+			inc_count++;
+		}
+		if(GLOBAL_COUNT >= STOP){
+			kprintf("Total increment done by task %d is: %d\n\r",pid,inc_count);
+			break;
+		}
+	}
+	task_exit();
+
+}
+void sleep_state(void){
+	kprintf("Sleeping\n");
+	while(1);
 }
 
 
-void print_entire_queue(void){
-    kprintf("Printint entire queue ___________\n");
-    kprintf("Queue size = %d\n",queue.size);
-    kprintf("Queue max = %d\n",queue.max);
-    kprintf("Queue st = %d\n",queue.st);
-    kprintf("Queue ed = %d\n",queue.ed);
-
-    for (int i = 0;i < queue.size;i++){
-        kprintf("Queue q[%d] = %x\n",i,queue.q[i]);
-        print_task_info(queue.q[i]);
-    }
-    kprintf("END QUEUE PRINT ___________\n");
-}
-void print_task_info(TCB_TypeDef *task){
-	kprintf("_____________TASK INFO_____________\n");
-	kprintf("Task ID = %d\n",task->task_id);
-	kprintf("\n");
+void scheduling_tester(void){
+	init_queue();
+	
+	for(int i = 0;i < TASK_COUNT;i++){
+		__create_task((TCB_TypeDef *)__task + i,task_1,(uint32_t*)TASK_STACK_START - i * TASK_STACK_SIZE);
+		queue_add((TCB_TypeDef *)__task + i);
+	}
+	
+	__create_task((TCB_TypeDef *)&__sleep,sleep_state,(uint32_t*)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
+	__set_sleep((TCB_TypeDef *)&__sleep);
+		
+	__set_pending(1);
+	start_exec();
+	kprintf("___________END SCHEDULING TESTER___________\n");
 }

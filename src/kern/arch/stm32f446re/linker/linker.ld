@@ -33,4 +33,4 @@ SECTIONS
 		*(.bss)
 		_ebss = .; 
 	}>SRAM
-}
+} 
