@@ -48,7 +48,7 @@ typedef struct task_tcb
 	uint16_t task_id;		   // a unsigned 16 bit integer starting from 1000
 	uint16_t status;		   // task status: running, waiting, ready, killed, or terminated
 	uint32_t start_time_t;	   // process creation time
-	uint32_t reponse_time_t;   // first time CPU allocation (execution) time
+	uint32_t response_time_t;   // first time CPU allocation (execution) time
 	uint32_t execution_time;   // total execution time (in ms)
 	uint32_t waiting_time;	   // total waiting time (in ms)
 	uint32_t priority;		   // task priority

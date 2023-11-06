@@ -56,12 +56,7 @@ void __set_sleep(TCB_TypeDef*);
 void start_exec(void);
 
 
-void print_task_info(TCB_TypeDef*);
-void print_entire_queue(void);
 
-void scheduling_tester(void);
-void sleep_state(void);
-void task_1(void);
 
 #endif
 

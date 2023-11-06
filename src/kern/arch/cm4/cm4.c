@@ -104,7 +104,7 @@ void __enable_fpu(){
 
 __attribute__((weak)) void SysTick_Handler(){
     __mscount+=(SYSTICK->LOAD)/(PLL_N*1000);
-    // if(__PendSV_Flag) SCB->ICSR |= (1 << 28); // set PendSV bit
+    if(__PendSV_Flag) SCB->ICSR |= (1 << 28); // set PendSV bit
 }
 
 void __set_pending(uint8_t flag){

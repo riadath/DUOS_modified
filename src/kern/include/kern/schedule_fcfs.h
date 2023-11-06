@@ -20,8 +20,12 @@
 void init_queue_fcfs(void);
 void queue_add_fcfs(TCB_TypeDef *);
 TCB_TypeDef* pop_fcfs(void);
-void __schedule_fcfs(void);
+void next_task_fcfs(void);
 void start_exec_fcfs(void);
 void create_task_fcfs(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start);
+void set_sleep_fcfs(TCB_TypeDef *task);
 
+//for degugging
+void print_all_queue(void);
+void print_current_task(void);
 #endif
