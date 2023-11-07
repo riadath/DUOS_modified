@@ -122,4 +122,51 @@ void __set_sleep(TCB_TypeDef *task){
 #define TASK_COUNT 	10
 
 
+TCB_TypeDef __task[MAX_TASK],__sleep;
+uint32_t GLOBAL_COUNT = 0;
 
+void task_1(void);
+void sleep_state(void);
+void scheduling_tester(void);
+
+void task_1(void){
+	uint32_t value;
+	uint32_t inc_count=0;
+	uint32_t pid = getpid();
+	kprintf("___________________Task %d___________________\n",pid);
+	while(1){
+		value = GLOBAL_COUNT;
+		value++;
+		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
+			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
+		} else{
+			GLOBAL_COUNT=value;
+			inc_count++;
+		}
+		if(GLOBAL_COUNT >= STOP){
+			kprintf("Total increment done by task %d is: %d\n\r",pid,inc_count);
+			break;
+		}
+	}
+	task_exit();
+}
+void sleep_state(void){
+	kprintf("Sleeping\n");
+	while(1);
+}
+
+void scheduling_tester(void){
+	init_queue();
+	
+	for(int i = 0;i < TASK_COUNT;i++){
+		__create_task((TCB_TypeDef *)__task + i,task_1,(uint32_t*)TASK_STACK_START - i * TASK_STACK_SIZE);
+		queue_add((TCB_TypeDef *)__task + i);
+	}
+	
+	__create_task((TCB_TypeDef *)&__sleep,sleep_state,(uint32_t*)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
+	__set_sleep((TCB_TypeDef *)&__sleep);
+		
+	__set_pending(1);
+	start_exec();
+	kprintf("___________END SCHEDULING TESTER___________\n");
+}

@@ -49,6 +49,7 @@
 //includes for svc and pendsvc
 #include <syscall.h>
 #include <syscall_def.h>
+#include <schedule.h>
 #include <schedule_fcfs.h>
 
 void print_device_list(){
@@ -106,136 +107,6 @@ void __move_to_user(void){
 
 
 
-#define STOP 		1000000
-#define TASK_COUNT 	5
-
-
-TCB_TypeDef __task[MAX_TASK],__sleep;
-
-uint32_t GLOBAL_COUNT = 0;
-
-void task_1(void){
-	uint32_t value;
-	uint32_t inc_count=0;
-	uint32_t pid = getpid();
-	kprintf("___________________Task %d___________________\n",pid);
-	while(1){
-		value = GLOBAL_COUNT;
-		value++;
-		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
-			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
-		} else{
-			GLOBAL_COUNT=value;
-			inc_count++;
-		}
-		if(GLOBAL_COUNT >= STOP){
-			kprintf("Total increment done by task %d is: %d\n\r",pid,inc_count);
-			break;
-		}
-	}
-	task_exit();
-}
-void sleep_state(void){
-	print_task_timing_data();
-	kprintf("Sleeping\n");
-	while(1);
-}
-
-void scheduling_tester(void){
-	init_queue();
-	
-	for(int i = 0;i < TASK_COUNT;i++){
-		__create_task((TCB_TypeDef *)__task + i,task_1,(uint32_t*)TASK_STACK_START - i * TASK_STACK_SIZE);
-		queue_add((TCB_TypeDef *)__task + i);
-	}
-	
-	__create_task((TCB_TypeDef *)&__sleep,sleep_state,(uint32_t*)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
-	__set_sleep((TCB_TypeDef *)&__sleep);
-		
-	__set_pending(1);
-	start_exec();
-	kprintf("___________END SCHEDULING TESTER___________\n");
-}
-
-
-
-TCB_TypeDef task_fcfs[MAX_TASK],sleep_fcfs;
-uint32_t GLOBAL_COUNT_FCFS = 0;
-
-void task_1_fcfs(void){
-	uint32_t value;
-	uint32_t inc_count=0;
-	uint32_t pid = getpid();
-	//default loop runs 100000000 times
-	uint32_t loop = 10000000;
-	while(loop--){
-		__asm("nop");
-	}
-
-	kprintf("___________________Task FCFS %d___________________\n",pid);
-	while(1){
-		value = GLOBAL_COUNT_FCFS;
-		value++;
-		if(value != GLOBAL_COUNT_FCFS+1){ //we check is someother task(s) increase the count
-			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT_FCFS+1); /* It is an SVC call*/
-		} else{
-			GLOBAL_COUNT_FCFS=value;
-			inc_count++;
-		}
-		if(GLOBAL_COUNT_FCFS >= STOP){
-			kprintf("Total increment done by task %d is: %d\n\r",pid,inc_count);
-			break;
-		}
-	}
-	task_exit();
-
-}
-
-void print_all_task(void){
-	kprintf("___________________\n");
-	for(int i = 0;i < TASK_COUNT;i++){
-		kprintf("task id %d\n",((TCB_TypeDef *)task_fcfs + i)->task_id);
-		kprintf("task magic number %x\n",((TCB_TypeDef *)task_fcfs + i)->magic_number);
-		kprintf("task digital sinature %x\n",((TCB_TypeDef *)task_fcfs + i)->digital_sinature);
-		kprintf("task psp %x\n",((TCB_TypeDef *)task_fcfs + i)->psp);
-	}
-	kprintf("___________________\n");
-}
-
-void print_task_timing_data(void) {
-    kprintf("_______________________________________________________________\n");
-
-    for (int i = 0; i < TASK_COUNT; i++) {
-        TCB_TypeDef* task = (TCB_TypeDef*)task_fcfs + i;
-        kprintf("Task ID: %d, Execution Time: %d, Waiting Time: %d, Response Time: %d\n",
-                task->task_id, task->execution_time, task->waiting_time, task->response_time_t);
-    }
-    kprintf("_______________________________________________________________\n");
-}
-
-
-
-
-void scheduling_tester_fcfs(void){
-	init_queue_fcfs();
-	
-	for(int i = 0;i < TASK_COUNT;i++){
-		create_task_fcfs((TCB_TypeDef *)task_fcfs + i,task_1_fcfs,(uint32_t*)TASK_STACK_START - i * TASK_STACK_SIZE);
-		queue_add_fcfs((TCB_TypeDef *)task_fcfs + i);
-	}
-
-	
-	create_task_fcfs((TCB_TypeDef *)&sleep_fcfs,sleep_state,(uint32_t*)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
-	set_sleep_fcfs((TCB_TypeDef *)&sleep_fcfs);
-	
-	// print_all_queue();
-	// print_all_task();
-
-	start_exec_fcfs();
-	
-	kprintf("___________END FCFS SCHEDULING TESTER___________\n");
-}
-
 void kmain(void){
 	__sys_init();
 
@@ -246,7 +117,7 @@ void kmain(void){
 	__move_to_user();
 	
 	scheduling_tester_fcfs();
-
+	// scheduling_tester();
 	while(1);
 }
 
