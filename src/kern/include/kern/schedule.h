@@ -45,6 +45,7 @@
 #define KILLED 4
 #define MAX_TASK 20
 
+#define PER_TASK_TIME 10 //10 ms for each task
 
 void init_queue(void);
 void queue_add(TCB_TypeDef *);

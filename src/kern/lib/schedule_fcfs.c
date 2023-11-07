@@ -3,7 +3,8 @@
 //sceduling for first come first serve
 
 ReadyQ_TypeDef queue_fcfs;
-TCB_TypeDef *current_task_fcfs,*sleep_task_fcfs;
+TCB_TypeDef *current_task_fcfs;
+TCB_TypeDef *sleep_task_fcfs;
 uint32_t TASK_ID_FCFS = 1000;
 
 uint32_t exec_start_time_fcfs = 0;
@@ -40,7 +41,7 @@ TCB_TypeDef* pop_fcfs(){
 void next_task_fcfs(void){
     // first come first serve
     uint32_t time = __getTime();
-    current_task_fcfs->execution_time += time - exec_start_time_fcfs;
+    current_task_fcfs->execution_time += time - current_task_fcfs->start_time_t;
     current_task_fcfs = pop_fcfs();
     current_task_fcfs->response_time_t = time;
     current_task_fcfs->waiting_time += time - exec_start_time_fcfs;
@@ -81,7 +82,7 @@ void create_task_fcfs(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start
     tcb->waiting_time = 0;
     tcb->start_time_t = get_time();
     tcb->priority = 1;
-    tcb->start_time_t = 0;
+    tcb->response_time_t = 0;
     
     tcb->psp = stack_start;
 	*(--tcb->psp) = DUMMY_XPSR; //xPSR
@@ -96,15 +97,16 @@ void create_task_fcfs(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start
 }
 
 
+//attribute = naked -> active
+//attribute = weak -> not active
 
-void __attribute__((naked)) PendSV_Handler(void){
+void __attribute__((weak)) PendSV_Handler(void){
 	SCB->ICSR |= (1<<27);
-	//save current context
 	__asm volatile(
 		"stmdb r0!, {r4-r11}\n"
 		"push {lr}\n"
-        "nop\n"
 	);
+    
 	next_task_fcfs();
 
 	__asm volatile(
@@ -202,13 +204,12 @@ void scheduling_tester_fcfs(void){
 		queue_add_fcfs((TCB_TypeDef *)task_fcfs + i);
 	}
 
-	
 	create_task_fcfs((TCB_TypeDef *)&sleep_fcfs,sleep_state_fcfs,(uint32_t*)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
 	set_sleep_fcfs((TCB_TypeDef *)&sleep_fcfs);
 	
 	// print_all_queue();
 	// print_all_task();
-
+    
 	start_exec_fcfs();
 	
 	kprintf("___________END FCFS SCHEDULING TESTER___________\n");

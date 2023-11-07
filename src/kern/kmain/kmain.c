@@ -87,8 +87,6 @@ void SVC_Tester(void){
 		reboot();
 	}
 }
-
-
 void SVC_Handler_Main( uint32_t *svc_args ){
 	syscall(svc_args);
 }
@@ -114,10 +112,13 @@ void kmain(void){
 	__NVIC_SetPriority(SVCall_IRQn, 1);
 	__NVIC_SetPriority(SysTick_IRQn, 0xFF);
 	__NVIC_SetPriority(PendSV_IRQn, 0xFF); 
+
+
+
 	__move_to_user();
 	
-	scheduling_tester_fcfs();
-	// scheduling_tester();
+	// scheduling_tester_fcfs();
+	scheduling_tester();
 	while(1);
 }
 

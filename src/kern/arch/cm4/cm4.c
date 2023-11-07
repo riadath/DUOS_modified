@@ -32,6 +32,7 @@
 #include <clock.h>
 #include <syscall.h>
 volatile static uint32_t __mscount;
+volatile static uint32_t __reload;
 extern volatile uint8_t __PendSV_Flag = 0;
 /************************************************************************************
 * __SysTick_init(uint32_t reload) 
@@ -41,6 +42,7 @@ extern volatile uint8_t __PendSV_Flag = 0;
 
 __attribute__((weak)) void __SysTick_init(uint32_t reload)
 {
+    __reload = reload;
     SYSTICK->CTRL &= ~(1<<0); //disable systick timer
     SYSTICK->VAL =0; // initialize the counter
     __mscount=0;
@@ -89,7 +91,7 @@ __attribute__((weak)) void __updateSysTick(uint32_t count)
 **************************************************************************************/
 
 __attribute__((weak)) uint32_t __getTime(void){
-    return (__mscount+(SYSTICK->LOAD-SYSTICK->VAL)/(PLL_N*1000));
+    return (__mscount+(SYSTICK->LOAD-SYSTICK->VAL)/(PLL_N*__reload));
 }
 
 __attribute__((weak)) void __delay_ms(uint32_t ms){
