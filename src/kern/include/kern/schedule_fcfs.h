@@ -18,9 +18,9 @@
 #include <unistd.h>
 #include <task_queue.h>
 
-void init_queue_fcfs(void);
-void queue_add_fcfs(TCB_TypeDef *);
-TCB_TypeDef* pop_fcfs(void);
+// void init_queue_fcfs(void);
+// void queue_add_fcfs(TCB_TypeDef *);
+// TCB_TypeDef* pop_fcfs(void);
 void next_task_fcfs(void);
 void start_exec_fcfs(void);
 void create_task_fcfs(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start);

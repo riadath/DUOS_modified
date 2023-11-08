@@ -1,53 +1,25 @@
 #include <schedule.h>
 
-TaskQueue_TypeDef queue;
-
 TCB_TypeDef tcb_list[MAX_TASK];
+
 
 uint32_t TASK_ID = 1000;
 uint32_t exec_start_time = 0;
 
 
-void init_queue(void){
-	queue.size = 0;
-	queue.max = MAX_TASKS;
-	queue.st = 0;
-	queue.ed = -1;
-
-}
-
-void queue_add(TCB_TypeDef *task){
-	if (queue.size == queue.max){
-		return;
-	}
-	queue.ed = (queue.ed + 1) % queue.max;
-	queue.q[queue.ed] = task;
-	queue.size++;
-}
-TCB_TypeDef* pop(){
-	if (queue.size == 0){
-		return &queue.sleep;
-	}
-
-	TCB_TypeDef *task = queue.q[queue.st];
-	queue.st = (queue.st + 1) % queue.max;
-	queue.size--;
-	return task;
-}
-
 //-------------scheduling functions----------------
 
 void schedule_next(void){
-    if(queue.current_task->status == RUNNING){
-        queue.current_task->status = READY;
-        queue_add(queue.current_task);
+    if(tcb_queue.current_task->status == RUNNING){
+        tcb_queue.current_task->status = READY;
+        push_task(tcb_queue.current_task);
     }
-	queue.current_task->execution_time += PER_TASK_TIME;
-	queue.current_task = pop();
-	if(queue.current_task->response_time_t == 0){
-		queue.current_task->response_time_t = __getTime();
+	tcb_queue.current_task->execution_time += PER_TASK_TIME;
+	tcb_queue.current_task = pop_task();
+	if(tcb_queue.current_task->response_time_t == 0){
+		tcb_queue.current_task->response_time_t = __getTime();
 	}
-    queue.current_task->status = RUNNING;
+    tcb_queue.current_task->status = RUNNING;
     return;
 }
 
@@ -77,25 +49,25 @@ void create_tcb(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
 
 
 void start_exec(void){
-	if(queue.size == 0)return;
-	queue.current_task = pop(); 
-	if(queue.current_task->magic_number != 0xFECABAA0
-	|| queue.current_task->digital_sinature != 0x00000001){
+	if(tcb_queue.size == 0)return;
+	tcb_queue.current_task = pop_task(); 
+	if(tcb_queue.current_task->magic_number != 0xFECABAA0
+	|| tcb_queue.current_task->digital_sinature != 0x00000001){
 		kprintf("Invalid task\n");
 		return;
 	}
     uint32_t cur_time = get_time();
-	queue.current_task->response_time_t = cur_time;
+	tcb_queue.current_task->response_time_t = cur_time;
 	exec_start_time = cur_time;
-	queue.current_task->status = RUNNING;
-	start_task(queue.current_task->psp);
+	tcb_queue.current_task->status = RUNNING;
+	start_task(tcb_queue.current_task->psp);
 }
 
 
 //attribute = naked -> active
 //attribute = weak -> not active
 
-void __attribute__((naked)) PendSV_Handler(void){
+void __attribute__((weak)) PendSV_Handler(void){
 	//Clear all pending interrupts
 	SCB->ICSR |= (1<<27);
 
@@ -107,7 +79,7 @@ void __attribute__((naked)) PendSV_Handler(void){
 	);
 
 	__asm volatile("mov %0, r0" 
-		: "=r" (queue.current_task->psp)
+		: "=r" (tcb_queue.current_task->psp)
 		:
 	);
 	//Schedule next task
@@ -116,7 +88,7 @@ void __attribute__((naked)) PendSV_Handler(void){
 	__asm volatile(
 		"mov r0, %0" 
 		: 
-		:"r"(queue.current_task->psp)
+		:"r"(tcb_queue.current_task->psp)
 	);
 	__asm volatile(
 		"ldmia r0!,{r4-r11}\n"
@@ -183,9 +155,9 @@ void scheduling_tester(void)
 	for (int i = 0; i < TASK_COUNT; i++)
 	{
 		create_tcb((TCB_TypeDef *)tcb_list + i, task_1, (uint32_t *)TASK_STACK_START - i * TASK_STACK_SIZE);
-		queue_add((TCB_TypeDef *)tcb_list + i);
+		push_task((TCB_TypeDef *)tcb_list + i);
 	}
-	create_tcb((TCB_TypeDef *)&queue.sleep, sleep_state, (uint32_t *)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
+	create_tcb((TCB_TypeDef *)&tcb_queue.sleep, sleep_state, (uint32_t *)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
 
 	__set_pending(1);
 	start_exec();

@@ -2,7 +2,7 @@
 #define __TASK_QUEUE_H
 
 #include <types.h>
-
+#include <schedule.h>
 typedef struct ready_queue
 {
 	int size;
@@ -14,5 +14,13 @@ typedef struct ready_queue
 	TCB_TypeDef sleep;
 } TaskQueue_TypeDef;
 
+
+
+extern TaskQueue_TypeDef tcb_queue;
+
+
+void init_queue(void);
+void push_task(TCB_TypeDef *task);
+TCB_TypeDef *pop_task(void);
 
 #endif

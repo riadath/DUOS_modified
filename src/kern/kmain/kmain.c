@@ -52,7 +52,6 @@
 #include <schedule.h>
 #include <schedule_fcfs.h>
 
-#include <task_queue.h>
 
 void print_device_list(){
 	kprintf("\n\n______________________\n\n");
@@ -116,8 +115,8 @@ void kmain(void){
 	__move_to_user();
 
 
-	// scheduling_tester_fcfs();
-	scheduling_tester();
+	scheduling_tester_fcfs();
+	// scheduling_tester();
 	while(1);
 }
 

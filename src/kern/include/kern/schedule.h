@@ -50,10 +50,6 @@
 #define TASK_COUNT 	10
 #define PER_TASK_TIME 10 //10 ms for each task
 
-
-TCB_TypeDef* pop(void);
-void init_queue(void);
-void queue_add(TCB_TypeDef *);
 void schedule_next(void);
 void create_tcb(TCB_TypeDef *, void(*task)(void), uint32_t *stack_start);
 void start_exec(void);
