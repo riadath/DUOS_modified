@@ -7,6 +7,8 @@
 
 uint32_t TASK_ID_FCFS = 1000;
 uint32_t exec_start_time_fcfs = 0;
+TCB_TypeDef task_fcfs[MAX_TASK];
+uint32_t GLOBAL_COUNT_FCFS = 0;
 
 
 
@@ -26,7 +28,9 @@ void next_task_fcfs(void){
 
 
 void start_exec_fcfs(void){
+    //set sleep task
     
+
 	if(tcb_queue.size == 0)return;
 	tcb_queue.current_task = pop_task(); 
 
@@ -95,17 +99,14 @@ void __attribute__((naked)) PendSV_Handler(void){
 
 // __________________SCHEUDLING TESTER__________________
 
-#define STOP 		1000000
-#define TASK_COUNT 	5
-TCB_TypeDef task_fcfs[MAX_TASK],sleep_fcfs;
-uint32_t GLOBAL_COUNT_FCFS = 0;
+
 
 
 void task_1_fcfs(void);
-void sleep_state_fcfs(void);
 void print_all_task(void);
 void print_task_timing_data(void);
 void scheduling_tester_fcfs(void);
+void sleep_state_fcfs(void);
 
 
 void task_1_fcfs(void){
@@ -143,6 +144,23 @@ void sleep_state_fcfs(void){
 	while(1);
 }
 
+void scheduling_tester_fcfs(void){
+	init_queue();
+	
+	for(int i = 0;i < TASK_COUNT;i++){
+		create_task_fcfs((TCB_TypeDef *)task_fcfs + i,task_1_fcfs,
+        (uint32_t*)TASK_STACK_START - i * TASK_STACK_SIZE);
+		push_task((TCB_TypeDef *)task_fcfs + i);
+	}
+    create_tcb((TCB_TypeDef *)&tcb_queue.sleep, sleep_state_fcfs, 
+    (uint32_t *)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
+	start_exec_fcfs();
+	
+	kprintf("___________END FCFS SCHEDULING TESTER___________\n");
+}
+
+
+
 void print_all_task(void){
 	kprintf("___________________\n");
 	for(int i = 0;i < TASK_COUNT;i++){
@@ -163,45 +181,4 @@ void print_task_timing_data(void) {
                 task->task_id, task->execution_time, task->waiting_time, task->response_time_t);
     }
     kprintf("_______________________________________________________________\n");
-}
-
-
-void scheduling_tester_fcfs(void){
-	init_queue();
-	
-	for(int i = 0;i < TASK_COUNT;i++){
-		create_task_fcfs((TCB_TypeDef *)task_fcfs + i,task_1_fcfs,
-        (uint32_t*)TASK_STACK_START - i * TASK_STACK_SIZE);
-		push_task((TCB_TypeDef *)task_fcfs + i);
-	}
-
-	create_task_fcfs((TCB_TypeDef *)&tcb_queue.sleep,sleep_state_fcfs,
-    (uint32_t*)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
-	
-	// print_all_queue();
-	// print_all_task();
-    
-	start_exec_fcfs();
-	
-	kprintf("___________END FCFS SCHEDULING TESTER___________\n");
-}
-
-
-//for degugging
-void print_all_queue(void);
-void print_current_task(void);
-void print_current_task(void){
-    kprintf("Current task id: %d\n",tcb_queue.current_task->task_id);
-    kprintf("Current task magic number: %x\n",tcb_queue.current_task->magic_number);
-    return;
-}
-void print_all_queue(void){
-   while(tcb_queue.size != 0){
-        TCB_TypeDef *task = pop_task();
-        
-        kprintf("Task id: %d\n",task->task_id);
-        kprintf("Task magic number: %x\n",task->magic_number);
-    }
-    return;
-    
 }
