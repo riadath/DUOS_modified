@@ -52,6 +52,8 @@
 #include <schedule.h>
 #include <schedule_fcfs.h>
 
+#include <task_queue.h>
+
 void print_device_list(){
 	kprintf("\n\n______________________\n\n");
 	for (int i = 0;i < device_count;i++){
@@ -109,14 +111,11 @@ void kmain(void){
 	__sys_init();
 
 
-	__NVIC_SetPriority(SVCall_IRQn, 1);
-	__NVIC_SetPriority(SysTick_IRQn, 0xFF);
+	__NVIC_SetPriority(SVCall_IRQn, 12);
 	__NVIC_SetPriority(PendSV_IRQn, 0xFF); 
-
-
-
 	__move_to_user();
-	
+
+
 	// scheduling_tester_fcfs();
 	scheduling_tester();
 	while(1);

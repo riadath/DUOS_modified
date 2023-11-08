@@ -55,13 +55,5 @@ typedef struct task_tcb
 	uint32_t *psp;			   // task stack pointer or stackframe address
 } TCB_TypeDef;
 
-typedef struct ready_queue
-{
-	int size;
-	int max;
-	int st;
-	int ed;
-	TCB_TypeDef *q[30];
-} ReadyQ_TypeDef;
 
 #endif

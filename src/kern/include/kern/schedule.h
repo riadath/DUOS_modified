@@ -38,6 +38,7 @@
 #include <kstdio.h>
 #include <unistd.h>
 #include <types.h>
+#include <task_queue.h>
 
 #define READY 1
 #define RUNNING 2
@@ -45,19 +46,17 @@
 #define KILLED 4
 #define MAX_TASK 20
 
+#define STOP 		1000000
+#define TASK_COUNT 	10
 #define PER_TASK_TIME 10 //10 ms for each task
 
+
+TCB_TypeDef* pop(void);
 void init_queue(void);
 void queue_add(TCB_TypeDef *);
-TCB_TypeDef* pop(void);
-
-void __schedule(void);
-void __create_task(TCB_TypeDef *, void(*task)(void), uint32_t *stack_start);
-void __set_sleep(TCB_TypeDef*);
+void schedule_next(void);
+void create_tcb(TCB_TypeDef *, void(*task)(void), uint32_t *stack_start);
 void start_exec(void);
-
-
-
 
 #endif
 

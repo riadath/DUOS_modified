@@ -45,7 +45,7 @@ void __sys_start_task(uint32_t psp){
 }
 
 void __sys_open(char *name,uint8_t t_access, uint32_t *op_addr){
-    strcpy(device_list[device_count].name,name);
+    __strcpy(device_list[device_count].name,name);
     device_list[device_count].t_ref++;
     device_list[device_count].t_access = t_access;
     device_list[device_count].op_addr = op_addr;
@@ -80,8 +80,8 @@ void __sys_read(uint8_t fd,char **data,uint32_t size){
         case STDIN_FILENO:
             char temp[size];
             uint8_t *buff;
-            _USART_READ(USART2,&buff,size);
-            strcpy(temp,&buff);
+            _USART_READ(USART2,buff,size);
+            __strcpy(temp,&buff);
             *data = temp;
             break;
     }

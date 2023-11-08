@@ -16,6 +16,7 @@
 #include <kmain.h>
 #include <kstdio.h>
 #include <unistd.h>
+#include <task_queue.h>
 
 void init_queue_fcfs(void);
 void queue_add_fcfs(TCB_TypeDef *);

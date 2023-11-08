@@ -1,7 +1,9 @@
 #include <schedule.h>
-ReadyQ_TypeDef queue;
-TCB_TypeDef *current_task;
-TCB_TypeDef*sleep_task;
+
+TaskQueue_TypeDef queue;
+
+TCB_TypeDef tcb_list[MAX_TASK];
+
 uint32_t TASK_ID = 1000;
 uint32_t exec_start_time = 0;
 
@@ -11,6 +13,7 @@ void init_queue(void){
 	queue.max = MAX_TASKS;
 	queue.st = 0;
 	queue.ed = -1;
+
 }
 
 void queue_add(TCB_TypeDef *task){
@@ -23,7 +26,7 @@ void queue_add(TCB_TypeDef *task){
 }
 TCB_TypeDef* pop(){
 	if (queue.size == 0){
-		queue_add(sleep_task);
+		return &queue.sleep;
 	}
 
 	TCB_TypeDef *task = queue.q[queue.st];
@@ -34,22 +37,22 @@ TCB_TypeDef* pop(){
 
 //-------------scheduling functions----------------
 
-void __schedule(void){
-    if(current_task->status == RUNNING){
-        current_task->status = READY;
-        queue_add(current_task);
+void schedule_next(void){
+    if(queue.current_task->status == RUNNING){
+        queue.current_task->status = READY;
+        queue_add(queue.current_task);
     }
-	current_task->execution_time += PER_TASK_TIME;
-	current_task = pop();
-	if(current_task->response_time_t == 0){
-		current_task->response_time_t = __getTime();
+	queue.current_task->execution_time += PER_TASK_TIME;
+	queue.current_task = pop();
+	if(queue.current_task->response_time_t == 0){
+		queue.current_task->response_time_t = __getTime();
 	}
-    current_task->status = RUNNING;
+    queue.current_task->status = RUNNING;
     return;
 }
 
 
-void __create_task(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
+void create_tcb(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
 	tcb->magic_number = 0xFECABAA0;
     tcb->digital_sinature = 0x00000001;
     tcb->task_id = TASK_ID++;
@@ -75,23 +78,19 @@ void __create_task(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
 
 void start_exec(void){
 	if(queue.size == 0)return;
-	current_task = pop(); 
-	if(current_task->magic_number != 0xFECABAA0
-	|| current_task->digital_sinature != 0x00000001){
+	queue.current_task = pop(); 
+	if(queue.current_task->magic_number != 0xFECABAA0
+	|| queue.current_task->digital_sinature != 0x00000001){
 		kprintf("Invalid task\n");
 		return;
 	}
     uint32_t cur_time = get_time();
-	current_task->response_time_t = cur_time;
+	queue.current_task->response_time_t = cur_time;
 	exec_start_time = cur_time;
-	current_task->status = RUNNING;
-	start_task(current_task->psp);
+	queue.current_task->status = RUNNING;
+	start_task(queue.current_task->psp);
 }
 
-void __set_sleep(TCB_TypeDef *task){
-	sleep_task = task;
-	return;
-}
 
 //attribute = naked -> active
 //attribute = weak -> not active
@@ -108,16 +107,16 @@ void __attribute__((naked)) PendSV_Handler(void){
 	);
 
 	__asm volatile("mov %0, r0" 
-		: "=r" (current_task->psp)
+		: "=r" (queue.current_task->psp)
 		:
 	);
 	//Schedule next task
-	__schedule();
+	schedule_next();
 
 	__asm volatile(
 		"mov r0, %0" 
 		: 
-		:"r"(current_task->psp)
+		:"r"(queue.current_task->psp)
 	);
 	__asm volatile(
 		"ldmia r0!,{r4-r11}\n"
@@ -128,72 +127,76 @@ void __attribute__((naked)) PendSV_Handler(void){
 }
 
 //-------------helper functions----------------
-#define STOP 		1000000
-#define TASK_COUNT 	10
 
-
-TCB_TypeDef __task[MAX_TASK],__sleep;
 uint32_t GLOBAL_COUNT = 0;
 
 void task_1(void);
 void sleep_state(void);
 void scheduling_tester(void);
 void print_task_time(void);
-void task_1(void){
+
+void task_1(void)
+{
 	uint32_t value;
-	uint32_t inc_count=0;
+	uint32_t inc_count = 0;
 	uint32_t pid = getpid();
 	uint32_t st_time = get_time();
-	kprintf("___________________Task %d___________________\n",pid);
-	while(1){
+	kprintf("_________________tcb_list %d___________________\n\n", pid);
+	while (1)
+	{
 		value = GLOBAL_COUNT;
 		value++;
-		if(value != GLOBAL_COUNT+1){ //we check is someother task(s) increase the count
-			kprintf("Error %d != %d\n\r",value,GLOBAL_COUNT+1); /* It is an SVC call*/
-		} else{
-			GLOBAL_COUNT=value;
+		if (value != GLOBAL_COUNT + 1)
+		{															// we check is someother task(s) increase the count
+			kprintf("Error %d != %d\n\r", value, GLOBAL_COUNT + 1); /* It is an SVC call*/
+		}
+		else
+		{
+			GLOBAL_COUNT = value;
 			inc_count++;
 		}
-		if(GLOBAL_COUNT >= STOP){
-			kprintf("Total increment done by task %d is: %d\n\r",pid,inc_count);
+		if (GLOBAL_COUNT >= STOP)
+		{
+			kprintf("Total increment done by task %d is: %d\n\r", pid, inc_count);
 			break;
 		}
 	}
 	uint32_t turn_around_time = get_time() - st_time;
 
-	TCB_TypeDef *this_task = (__task + pid - 1000);
+	TCB_TypeDef *this_task = (tcb_list + pid - 1000);
 	this_task->waiting_time = turn_around_time - this_task->execution_time;
 	task_exit();
 }
-void sleep_state(void){
+void sleep_state(void)
+{
 	__set_pending(0);
 	print_task_time();
 	kprintf("Sleeping\n");
-	while(1);
+	while (1);
 }
 
-void scheduling_tester(void){
+
+void scheduling_tester(void)
+{
 	init_queue();
-	
-	for(int i = 0;i < TASK_COUNT;i++){
-		__create_task((TCB_TypeDef *)__task + i,task_1,(uint32_t*)TASK_STACK_START - i * TASK_STACK_SIZE);
-		queue_add((TCB_TypeDef *)__task + i);
+
+	for (int i = 0; i < TASK_COUNT; i++)
+	{
+		create_tcb((TCB_TypeDef *)tcb_list + i, task_1, (uint32_t *)TASK_STACK_START - i * TASK_STACK_SIZE);
+		queue_add((TCB_TypeDef *)tcb_list + i);
 	}
-	
-	__create_task((TCB_TypeDef *)&__sleep,sleep_state,(uint32_t*)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
-	__set_sleep((TCB_TypeDef *)&__sleep);
-		
+	create_tcb((TCB_TypeDef *)&queue.sleep, sleep_state, (uint32_t *)TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE);
+
 	__set_pending(1);
 	start_exec();
 	kprintf("___________END SCHEDULING TESTER___________\n");
 }
 
-
 void print_task_time(void){
 	kprintf("_______________________________________________________________\n");
 
 	for(int i = 0;i < TASK_COUNT;i++){
-		TCB_TypeDef *task = (TCB_TypeDef *)__task + i;
+		TCB_TypeDef *task = (TCB_TypeDef *)tcb_list + i;
 		kprintf("Task ID: %d, Execution Time: %d,   Waiting Time: %d,   Response Time: %d   Turn Around Time: %d\n",
 				task->task_id, task->execution_time, task->waiting_time, task->response_time_t, task->waiting_time + task->execution_time);
 	}

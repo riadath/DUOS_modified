@@ -37,5 +37,5 @@ uint32_t __strlen(uint8_t*);
 uint8_t * convert(uint32_t,uint8_t);
 uint8_t *float2str(float);
 float str2float(uint8_t*);
-void strcpy(uint8_t *buff1, uint8_t *buff2);
+void __strcpy(uint8_t *buff1, uint8_t *buff2);
 #endif

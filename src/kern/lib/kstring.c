@@ -67,7 +67,7 @@ void __reverse_str(uint8_t* buff)
 	}
 }
 
-void strcpy(uint8_t *buff1, uint8_t *buff2){
+void __strcpy(uint8_t *buff1, uint8_t *buff2){
 	uint32_t i=0;
 	while(buff2[i]!='\0'){
 		buff1[i]=buff2[i];
