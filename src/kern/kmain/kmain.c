@@ -103,12 +103,8 @@ void __move_to_user(void){
 			"isb\n"
 	);
 }
-
-
-
 void kmain(void){
 	__sys_init();
-
 
 	__NVIC_SetPriority(SVCall_IRQn, 12);
 	__NVIC_SetPriority(PendSV_IRQn, 0xFF); 

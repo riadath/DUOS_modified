@@ -12,7 +12,7 @@ MAPDIR = mapfiles
 CFLAGS=-c -mcpu=$(MACH) -mthumb $(FPU) -std=gnu11 -w -O0
 LDFLAGS = -nostdlib -nostartfiles -nodefaultlibs -fno-exceptions -mcpu=$(MACH) -mthumb $(FPU) -T $(TOP)/arch/$(MCU)/linker/linker.ld -Wl,-Map=$(MAPDIR)/duos.map -O0
 .PHONY: all clean load
-all: kstring.o kmath.o cm4.o kfloat.o clock.o usart.o gpio.o timer.o kmain.o kstdio.o stm32_startup.o sys_init.o unistd.o times.o kunistd.o ktimes.o syscall.o seven_segment.o sys.o test_interrupt.o nvic.o dev_table.o ustdio.o schedule.o schedule_fcfs.o task_queue.o duos
+all: kstring.o kmath.o cm4.o kfloat.o clock.o usart.o gpio.o timer.o kmain.o kstdio.o stm32_startup.o sys_init.o unistd.o times.o kunistd.o ktimes.o syscall.o seven_segment.o sys.o test_interrupt.o nvic.o dev_table.o ustdio.o schedule.o schedule_fcfs.o task_queue.o sem.o duos
 
 ############ added by Reyadath
 nvic.o: $(TOP)/arch/$(MCU)/sys/nvic.c
@@ -32,6 +32,8 @@ ustdio.o: $(USERLAND)/utils/ustdio.c
 schedule_fcfs.o: $(TOP)/lib/schedule_fcfs.c
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 task_queue.o: $(TOP)/lib/task_queue.c
+	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
+sem.o: $(TOP)/lib/sem.c
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 ############ added by Reyadath
 
@@ -87,7 +89,7 @@ times.o: $(USERLAND)/utils/times.c
 syscall.o: $(TOP)/syscall/syscall.c
 	$(CC) $(CFLAGS) $(INCLUDE) $^ -o $(OBJECT)/$@
 
-duos: $(OBJECT)/kmath.o $(OBJECT)/kfloat.o  $(OBJECT)/cm4.o $(OBJECT)/kstring.o $(OBJECT)/kmain.o $(OBJECT)/stm32_startup.o $(OBJECT)/clock.o $(OBJECT)/usart.o $(OBJECT)/gpio.o $(OBJECT)/timer.o $(OBJECT)/kstdio.o $(OBJECT)/sys_init.o $(OBJECT)/unistd.o $(OBJECT)/times.o $(OBJECT)/kunistd.o $(OBJECT)/ktimes.o $(OBJECT)/syscall.o $(OBJECT)/seven_segment.o $(OBJECT)/sys.o $(OBJECT)/test_interrupt.o $(OBJECT)/nvic.o $(OBJECT)/dev_table.o $(OBJECT)/schedule.o $(OBJECT)/ustdio.o $(OBJECT)/schedule_fcfs.o $(OBJECT)/task_queue.o
+duos: $(OBJECT)/kmath.o $(OBJECT)/kfloat.o  $(OBJECT)/cm4.o $(OBJECT)/kstring.o $(OBJECT)/kmain.o $(OBJECT)/stm32_startup.o $(OBJECT)/clock.o $(OBJECT)/usart.o $(OBJECT)/gpio.o $(OBJECT)/timer.o $(OBJECT)/kstdio.o $(OBJECT)/sys_init.o $(OBJECT)/unistd.o $(OBJECT)/times.o $(OBJECT)/kunistd.o $(OBJECT)/ktimes.o $(OBJECT)/syscall.o $(OBJECT)/seven_segment.o $(OBJECT)/sys.o $(OBJECT)/test_interrupt.o $(OBJECT)/nvic.o $(OBJECT)/dev_table.o $(OBJECT)/schedule.o $(OBJECT)/ustdio.o $(OBJECT)/schedule_fcfs.o $(OBJECT)/task_queue.o $(OBJECT)/sem.o
 	$(CC) $(LDFLAGS) $^ -o $(TARGET)/$@
 
 clean:
