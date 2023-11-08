@@ -10,43 +10,6 @@ uint32_t exec_start_time_fcfs = 0;
 TCB_TypeDef task_fcfs[MAX_TASK];
 uint32_t GLOBAL_COUNT_FCFS = 0;
 
-
-
-
-void next_task_fcfs(void){
-    // first come first serve
-    uint32_t time = __getTime();
-    tcb_queue.current_task->execution_time += time - tcb_queue.current_task->start_time_t;
-    tcb_queue.current_task = pop_task();
-    tcb_queue.current_task->response_time_t = time;
-    tcb_queue.current_task->waiting_time += time - exec_start_time_fcfs;
-
-    tcb_queue.current_task->status = RUNNING;
-    return;
-}
-
-
-
-void start_exec_fcfs(void){
-    //set sleep task
-    
-
-	if(tcb_queue.size == 0)return;
-	tcb_queue.current_task = pop_task(); 
-
-
-	if(tcb_queue.current_task->magic_number != 0xFECABAA0
-	|| tcb_queue.current_task->digital_sinature != 0x00000001){
-		kprintf("Invalid task\n");
-		return;
-	}
-    uint32_t cur_time = get_time();
-    exec_start_time_fcfs = cur_time;
-    tcb_queue.current_task->response_time_t = cur_time;
-	tcb_queue.current_task->status = RUNNING;
-	start_task(tcb_queue.current_task->psp);
-}
-
 void create_task_fcfs(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start){
 	tcb->magic_number = 0xFECABAA0;
     tcb->digital_sinature = 0x00000001;
@@ -71,10 +34,41 @@ void create_task_fcfs(TCB_TypeDef *tcb, void(*task)(void), uint32_t *stack_start
 }
 
 
+void next_task_fcfs(void){
+    // first come first serve
+    uint32_t time = __getTime();
+    tcb_queue.current_task->execution_time += time - tcb_queue.current_task->response_time_t;
+    tcb_queue.current_task = pop_task();
+    tcb_queue.current_task->response_time_t = time;
+    tcb_queue.current_task->waiting_time += time - exec_start_time_fcfs;
+
+    tcb_queue.current_task->status = RUNNING;
+    return;
+}
+
+void start_exec_fcfs(void){
+
+	if(tcb_queue.size == 0)return;
+	tcb_queue.current_task = pop_task(); 
+
+
+	if(tcb_queue.current_task->magic_number != 0xFECABAA0
+	|| tcb_queue.current_task->digital_sinature != 0x00000001){
+		kprintf("Invalid task\n");
+		return;
+	}
+    uint32_t cur_time = get_time();
+    exec_start_time_fcfs = cur_time;
+    tcb_queue.current_task->response_time_t = cur_time;
+	tcb_queue.current_task->status = RUNNING;
+	start_task(tcb_queue.current_task->psp);
+}
+
+
 //attribute = naked -> active
 //attribute = weak -> not active
 
-void __attribute__((naked)) PendSV_Handler(void){
+void __attribute__((weak)) PendSV_Handler(void){
 	SCB->ICSR |= (1<<27);
 	__asm volatile(
 		"stmdb r0!, {r4-r11}\n"

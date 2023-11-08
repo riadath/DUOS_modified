@@ -67,7 +67,7 @@ void start_exec(void){
 //attribute = naked -> active
 //attribute = weak -> not active
 
-void __attribute__((weak)) PendSV_Handler(void){
+void __attribute__((naked)) PendSV_Handler(void){
 	//Clear all pending interrupts
 	SCB->ICSR |= (1<<27);
 

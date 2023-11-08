@@ -7,7 +7,6 @@ void init_queue(void){
 	tcb_queue.max = MAX_TASKS;
 	tcb_queue.st = 0;
 	tcb_queue.ed = -1;
-
 }
 
 void push_task(TCB_TypeDef *task){

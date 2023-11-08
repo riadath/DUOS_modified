@@ -115,8 +115,8 @@ void kmain(void){
 	__move_to_user();
 
 
-	scheduling_tester_fcfs();
-	// scheduling_tester();
+	// scheduling_tester_fcfs();
+	scheduling_tester();
 	while(1);
 }
 
