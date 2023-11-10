@@ -78,9 +78,9 @@ void kmain(void){
 	// SVC_Tester();
 	// scheduling_tester_fcfs();
 	// scheduling_tester();	
-	
+
 	test_sem();
-	kprintf("kmain() returned\n");
+	
 	while(1);
 }
 
