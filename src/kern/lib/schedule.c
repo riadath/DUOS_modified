@@ -14,11 +14,18 @@ void schedule_next(void){
         tcb_queue.current_task->status = READY;
         push_task(tcb_queue.current_task);
     }
+	if(tcb_queue.current_task->status == KILLED){
+		uint32_t turn_around_time = __getTime() - tcb_queue.current_task->start_time_t;
+		tcb_queue.current_task->waiting_time = turn_around_time - tcb_queue.current_task->execution_time;
+	}
 	tcb_queue.current_task->execution_time += PER_TASK_TIME;
+	
 	tcb_queue.current_task = pop_task();
+
 	if(tcb_queue.current_task->response_time_t == 0){
 		tcb_queue.current_task->response_time_t = __getTime();
 	}
+
     tcb_queue.current_task->status = RUNNING;
     return;
 }
@@ -107,40 +114,29 @@ void sleep_state(void);
 void scheduling_tester(void);
 void print_task_time(void);
 
-void task_1(void)
-{
-	uint32_t value;
-	uint32_t inc_count = 0;
+void task_1(void){
+	uint32_t value,inc_count = 0;
 	uint32_t pid = getpid();
-	uint32_t st_time = get_time();
 	kprintf("_________________tcb_list %d___________________\n\n", pid);
-	while (1)
-	{
+	while (1){
 		value = GLOBAL_COUNT;
 		value++;
-		if (value != GLOBAL_COUNT + 1)
-		{															// we check is someother task(s) increase the count
-			kprintf("Error %d != %d\n\r", value, GLOBAL_COUNT + 1); /* It is an SVC call*/
+		if (value != GLOBAL_COUNT + 1){															
+			// we check is someother task(s) increase the count
+			kprintf("Error in pid %d with %d != %d\n\r",pid, value, GLOBAL_COUNT + 1);
 		}
-		else
-		{
+		else{
 			GLOBAL_COUNT = value;
 			inc_count++;
 		}
-		if (GLOBAL_COUNT >= STOP)
-		{
+		if (GLOBAL_COUNT >= STOP){
 			kprintf("Total increment done by task %d is: %d\n\r", pid, inc_count);
 			break;
 		}
 	}
-	uint32_t turn_around_time = get_time() - st_time;
-
-	TCB_TypeDef *this_task = (tcb_list + pid - 1000);
-	this_task->waiting_time = turn_around_time - this_task->execution_time;
 	task_exit();
 }
-void sleep_state(void)
-{
+void sleep_state(void){
 	__set_pending(0);
 	print_task_time();
 	kprintf("Sleeping\n");
@@ -148,12 +144,10 @@ void sleep_state(void)
 }
 
 
-void scheduling_tester(void)
-{
+void scheduling_tester(void){
 	init_queue();
 
-	for (int i = 0; i < TASK_COUNT; i++)
-	{
+	for (int i = 0; i < TASK_COUNT; i++){
 		create_tcb((TCB_TypeDef *)tcb_list + i, task_1, (uint32_t *)TASK_STACK_START - i * TASK_STACK_SIZE);
 		push_task((TCB_TypeDef *)tcb_list + i);
 	}
