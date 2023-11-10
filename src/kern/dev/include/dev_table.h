@@ -11,7 +11,7 @@
 
 extern dev_table device_list[64];
 extern uint32_t device_count;
-
-void __init_dev_table(void);
+void print_device_list(void);
+void init_dev_table(void);
 #endif 
 

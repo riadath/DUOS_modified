@@ -62,12 +62,12 @@ void HardFault_Handler(void){
 
 __attribute__((weak)) void SVCall_Handler(void) {
 
-	__asm volatile (
+	asm volatile (
 		"TST lr, #4\n"
         "ITE EQ\n"
         "MRSEQ r0, MSP\n"
     	"MRSNE r0, PSP\n"
-		"B SVC_Handler_Main\n"
+		"B syscall\n"
 	);
 
 }

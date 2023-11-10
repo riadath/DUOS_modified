@@ -99,3 +99,31 @@ void syscall(uint32_t *svc_args)
 /* Handle SVC return here */
 }
 
+
+
+void SVC_Tester(void){
+	// test scanf
+	// char *data = "temp a ja e thakuk";
+	// read_user(0,&data,5);
+	// kprintf("data(main) = %s\n",data);
+
+	init_dev_table();
+	
+	//test fopen and fclose
+	char *device_name = "GPIOA";
+	uint8_t t_access = 0;
+	uint32_t* op_addr = (uint32_t *)GPIOA;
+	fopen(device_name,t_access,op_addr);
+	print_device_list();
+
+	fclose(op_addr);
+	print_device_list();
+
+	//test reboot
+	kprintf("Do you want to reboot the OS? (y : 1 /n : 0)\n");
+	int if_reboot;
+	kscanf("%d",&if_reboot);
+	if (if_reboot == 1){
+		reboot();
+	}
+}

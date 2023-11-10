@@ -79,25 +79,25 @@ void __attribute__((naked)) PendSV_Handler(void){
 	SCB->ICSR |= (1<<27);
 
 	//save current context
-	__asm volatile(
+	asm volatile(
 		"mrs r0, psp\n"
 		"stmdb r0!, {r4-r11}\n"
 		"push {lr}\n"
 	);
 
-	__asm volatile("mov %0, r0" 
+	asm volatile("mov %0, r0" 
 		: "=r" (tcb_queue.current_task->psp)
 		:
 	);
 	//Schedule next task
 	schedule_next();
 
-	__asm volatile(
+	asm volatile(
 		"mov r0, %0" 
 		: 
 		:"r"(tcb_queue.current_task->psp)
 	);
-	__asm volatile(
+	asm volatile(
 		"ldmia r0!,{r4-r11}\n"
 		"msr psp, r0\n"
 		"pop {lr}\n"
@@ -117,7 +117,7 @@ void print_task_time(void);
 void task_1(void){
 	uint32_t value,inc_count = 0;
 	uint32_t pid = getpid();
-	kprintf("_________________tcb_list %d___________________\n\n", pid);
+	kprintf("_________________TASK %d___________________\n\n", pid);
 	while (1){
 		value = GLOBAL_COUNT;
 		value++;

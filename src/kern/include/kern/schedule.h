@@ -39,7 +39,7 @@
 #include <unistd.h>
 #include <types.h>
 #include <task_queue.h>
-
+#include <kstring.h>
 #define READY 1
 #define RUNNING 2
 #define TERMINATED 3

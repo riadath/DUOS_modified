@@ -70,19 +70,19 @@ void start_exec_fcfs(void){
 
 void __attribute__((weak)) PendSV_Handler(void){
 	SCB->ICSR |= (1<<27);
-	__asm volatile(
+	asm volatile(
 		"stmdb r0!, {r4-r11}\n"
 		"push {lr}\n"
 	);
     
 	next_task_fcfs();
 
-	__asm volatile(
+	asm volatile(
 		"mov r0, %0" 
 		: 
 		:"r"(tcb_queue.current_task->psp)
 	);
-	__asm volatile(
+	asm volatile(
 		"ldmia r0!,{r4-r11}\n"
 		"msr psp, r0\n"
 		"pop {lr}\n"
@@ -110,7 +110,7 @@ void task_1_fcfs(void){
 	//default loop runs 100000000 times
 	uint32_t loop = 10000000;
 	while(loop--){
-		__asm("nop");
+		asm("nop");
 	}
 
 	kprintf("___________________Task FCFS %d___________________\n",pid);

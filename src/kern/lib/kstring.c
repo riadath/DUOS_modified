@@ -76,6 +76,17 @@ void __strcpy(uint8_t *buff1, uint8_t *buff2){
 	buff1[i]='\0';
 }
 
+uint8_t * __strcat(uint8_t *buff1, uint8_t *buff2){
+	uint32_t i=0,j=0;
+	while(buff1[i]!='\0')i++;
+	while(buff2[j]!='\0'){
+		buff1[i]=buff2[j];
+		i++;
+		j++;
+	}
+	buff1[i]='\0';
+	return buff1;
+}
 
 uint32_t __strlen(uint8_t* buff)
 {

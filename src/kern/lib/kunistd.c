@@ -33,15 +33,15 @@
 extern uint32_t device_count;
 
 void __sys_start_task(uint32_t psp){
-	__asm volatile ("MOV R0, %0"
+	asm volatile ("MOV R0, %0"
 		:
 		:"r" (psp)
 	);
-	__asm volatile ("LDMIA R0!,{R4-R11}");
-	__asm volatile ("MSR PSP, R0");
-	__asm volatile ("ISB 0xf" ::: "memory");
-	__asm volatile ("MOV LR, 0xFFFFFFFD");
-	__asm volatile ("BX LR");
+	asm volatile ("LDMIA R0!,{R4-R11}");
+	asm volatile ("MSR PSP, R0");
+	asm volatile ("ISB 0xf" ::: "memory");
+	asm volatile ("MOV LR, 0xFFFFFFFD");
+	asm volatile ("BX LR");
 }
 
 void __sys_open(char *name,uint8_t t_access, uint32_t *op_addr){

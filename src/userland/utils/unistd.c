@@ -32,118 +32,118 @@
 #include <syscall_def.h>
 #include <kstdio.h>
 void fopen(char *name,uint8_t t_access, uint32_t *op_addr){
-	__asm volatile (
+	asm volatile (
 		"mov r0, %[x]\n"
 		"mov r1, %[y]\n"
 		: 
 		: [x] "r" (name), [y] "r" (t_access)
 	);
-	__asm volatile(
+	asm volatile(
 		"mov r2, %[x]\n"
 		:
 		: [x] "r" (op_addr)
 	);
 
-	__asm volatile ("PUSH {r4-r11, ip, lr}");
-	__asm volatile("svc %0" : : "i" (SYS_open));
+	asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS_open));
 
-	__asm volatile ("POP {r4-r11, ip, lr}");
+	asm volatile ("POP {r4-r11, ip, lr}");
 
 }
 
 void fclose(uint32_t *op_addr){
-	__asm volatile (
+	asm volatile (
 		"mov r0, %[x]\n"
 		:
 		: [x] "r" (op_addr)
 	);
-	__asm volatile ("PUSH {r4-r11, ip, lr}");
-	__asm volatile("svc %0" : : "i" (SYS_close));
+	asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS_close));
 
-	__asm volatile ("POP {r4-r11, ip, lr}");
+	asm volatile ("POP {r4-r11, ip, lr}");
 }
 
 void reboot(void){
-	__asm volatile ("PUSH {r4-r11, ip, lr}");
-	__asm volatile("svc %0" : : "i" (SYS_reboot));
+	asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS_reboot));
 
-	__asm volatile ("POP {r4-r11, ip, lr}");
+	asm volatile ("POP {r4-r11, ip, lr}");
 }
 
 void read_user(uint8_t fd,char **data,uint32_t size){
-	__asm volatile (
+	asm volatile (
 		"mov r0, %[x]\n"
 		"mov r1, %[y]\n"
 		:
 		: [x] "r" (fd), [y] "r" (data)
 	);
-	__asm volatile (
+	asm volatile (
 		"mov r2, %[x]\n"
 		:
 		: [x] "r" (size)
 	);
-	__asm volatile ("PUSH {r4-r11, ip, lr}");
-	__asm volatile("svc %0" : : "i" (SYS_read));
+	asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS_read));
 
-	__asm volatile ("POP {r4-r11, ip, lr}");
+	asm volatile ("POP {r4-r11, ip, lr}");
 }
 void write_user(uint8_t fd,char *data){
-	__asm volatile (
+	asm volatile (
 		"mov r0, %[x]\n"
 		"mov r1, %[y]\n"
 		:
 		: [x] "r" (fd), [y] "r" (data)
 	);
-    __asm volatile("stmdb r13!, {r5}");
+    asm volatile("stmdb r13!, {r5}");
 
-	__asm volatile ("PUSH {r4-r11, ip, lr}");
-	__asm volatile("svc %0" : : "i" (SYS_write));
-	__asm volatile ("POP {r4-r11, ip, lr}");
+	asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS_write));
+	asm volatile ("POP {r4-r11, ip, lr}");
 }
 void yeild(void)
 {
-	__asm volatile("svc %0" : : "i" (SYS_yield));
+	asm volatile("svc %0" : : "i" (SYS_yield));
 
 }
 
 void task_exit(void)
 {
-    __asm volatile("PUSH {r5}");
-    __asm volatile ("PUSH {r4-r11, ip, lr}");
-	__asm volatile("svc %0" : : "i" (SYS__exit));
-	__asm volatile ("POP {r4-r11, ip, lr}");
+    asm volatile("PUSH {r5}");
+    asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS__exit));
+	asm volatile ("POP {r4-r11, ip, lr}");
     yeild();
 }
 
 uint32_t getpid(void)
 {
     unsigned int pid = 0;
-    __asm volatile("mov r5, %[v]": : [v] "r" (&pid));
-    __asm volatile("PUSH {r5}");
+    asm volatile("mov r5, %[v]": : [v] "r" (&pid));
+    asm volatile("PUSH {r5}");
 
-    __asm volatile ("PUSH {r4-r11, ip, lr}");
-	__asm volatile("svc %0" : : "i" (SYS_getpid));
+    asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS_getpid));
 
-	__asm volatile ("POP {r4-r11, ip, lr}");
+	asm volatile ("POP {r4-r11, ip, lr}");
     return (uint16_t) pid;
 }
 
 void start_task(uint32_t psp){
-	__asm volatile ("MOV R0, %0"
+	asm volatile ("MOV R0, %0"
 		:
 		:"r" (psp)
 	);
-	__asm volatile ("PUSH {r4-r11, ip, lr}");
-	__asm volatile("svc %0" : : "i" (SYS_start));
-	__asm volatile ("POP {r4-r11, ip, lr}");
+	asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS_start));
+	asm volatile ("POP {r4-r11, ip, lr}");
 
 }
 
 uint32_t get_time(void){
     uint32_t time = 0;
-	__asm volatile("mov r0, %[x]": : [x] "r" (&time));
-	__asm volatile ("PUSH {r4-r11, ip, lr}");
-	__asm volatile("svc %0" : : "i" (SYS___time));
-	__asm volatile ("POP {r4-r11, ip, lr}");
+	asm volatile("mov r0, %[x]": : [x] "r" (&time));
+	asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS___time));
+	asm volatile ("POP {r4-r11, ip, lr}");
 	return time;
 }

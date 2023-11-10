@@ -28,21 +28,23 @@
  * SUCH DAMAGE.
  */
  
+// libraries and headers
+#include <stm32_peps.h>
+#include <kmain.h>
 #include <sys_init.h>
 #include <cm4.h>
-#include <kmain.h>
 #include <kstdio.h>
 #include <kstring.h>
 #include <stdint.h>
+
+//device drivers
 #include <usart.h>
 #include <gpio.h>
-#include <stm32_peps.h>
-#include <dev_table.h>
+
 
 //new includes for assignment 2
 #include <sys.h> // EXTI Config
-#include <nvic.h>
-#include <test_interrupt.h> // test interrupt function
+#include <nvic.h> //NVIC functions
 #include <unistd.h>
 #include <ustdio.h>
 
@@ -51,50 +53,12 @@
 #include <syscall_def.h>
 #include <schedule.h>
 #include <schedule_fcfs.h>
+#include <sem.h>
 
-
-void print_device_list(){
-	kprintf("\n\n______________________\n\n");
-	for (int i = 0;i < device_count;i++){
-		kprintf("device name = %s\n",device_list[i].name);
-		kprintf("device t_ref = %d\n",device_list[i].t_ref);
-		kprintf("device t_access = %d\n",device_list[i].t_access);
-		kprintf("device op_addr = %x\n",device_list[i].op_addr);
-		kprintf("\n");
-	}
-}
-void SVC_Tester(void){
-	// test scanf
-	char *data = "temp a ja e thakuk";
-	read_user(0,&data,5);
-	kprintf("data(main) = %s\n",data);
-
-	
-	//test fopen and fclose
-	char *device_name = "GPIOA";
-	uint8_t t_access = 0;
-	uint32_t* op_addr = (uint32_t *)GPIOA;
-	fopen(device_name,t_access,op_addr);
-	print_device_list();
-
-	fclose(op_addr);
-	print_device_list();
-
-	//test reboot
-	kprintf("Do you want to reboot the OS? (y : 1 /n : 0)\n");
-	int if_reboot;
-	kscanf("%d",&if_reboot);
-	if (if_reboot == 1){
-		reboot();
-	}
-}
-void SVC_Handler_Main( uint32_t *svc_args ){
-	syscall(svc_args);
-}
 void __move_to_user(void){
 	uint32_t psp_stack[1024];
     PSP_Init(psp_stack + 1024);
-   __asm volatile (
+   asm volatile (
 		".global PSP_Init\n"
 		"PSP_Init:\n"
 			"msr psp, r0\n"
@@ -106,13 +70,17 @@ void __move_to_user(void){
 void kmain(void){
 	__sys_init();
 
-	__NVIC_SetPriority(SVCall_IRQn, 12);
+	__NVIC_SetPriority(SVCall_IRQn, 1);
 	__NVIC_SetPriority(PendSV_IRQn, 0xFF); 
 	__move_to_user();
 
 
+	// SVC_Tester();
 	// scheduling_tester_fcfs();
-	scheduling_tester();
+	// scheduling_tester();	
+	
+	test_sem();
+	kprintf("kmain() returned\n");
 	while(1);
 }
 

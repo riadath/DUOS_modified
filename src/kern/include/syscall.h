@@ -37,6 +37,8 @@
 #include <kunistd.h>
 #include <types.h>
 #include <schedule.h>
+#include <dev_table.h>
 void syscall(uint32_t *svc_args);
+void SVC_Tester(void);
 #endif
 
