@@ -2,7 +2,7 @@
 
 // sem_dec
 // Declare for use from C as extern void sem_dec(void * semaphore);
-extern void sem_dec(void* semaphore) {
+void sem_dec(void* semaphore) {
     asm volatile(
         ".macro WAIT_FOR_UPDATE \n"
         "   WFI                 \n"
@@ -27,7 +27,7 @@ extern void sem_dec(void* semaphore) {
 
 // sem_inc
 // Declare for use from C as extern void sem_inc(void * semaphore);
-extern void sem_inc(void* semaphore) {
+void sem_inc(void* semaphore) {
     asm volatile(
         ".macro SIGNAL_UPDATE \n"
         ".endm                  \n"
@@ -47,9 +47,10 @@ extern void sem_inc(void* semaphore) {
         "    BX      lr                 \n"
         : [r0] "=r" (semaphore) : );
 }
-unsigned int task_semaphore = 5;
 
-void test_sem(void);
+
+volatile uint32_t task_semaphore = 5;
+
 void test_sem(void) {
     kprintf("Testing semaphores\n");
 
@@ -58,4 +59,7 @@ void test_sem(void) {
 
     sem_dec(&task_semaphore);
     kprintf("task_semaphore: %d\n", task_semaphore);
+
+    kprintf("Done testing semaphores\n");
+    return;
 }

@@ -45,6 +45,7 @@ void __sys_init(void)
 	kprintf("\n************************************\r\n");
 	kprintf("Booting DUOS .....\r\n");
 	kprintf("Copyright (c) 2023, CSE, DU\r\n");
+	kprintf("Reyadath Ullah, CSE-26th Batch\r\n");
 	kprintf("CPUID %x\n", SCB->CPUID);
 	kprintf("OS Version: 1.0\n");
 	kprintf("Time Elapse %d ms\n",__getTime());

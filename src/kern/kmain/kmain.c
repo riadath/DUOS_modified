@@ -55,6 +55,8 @@
 #include <schedule_fcfs.h>
 #include <sem.h>
 
+
+
 void __move_to_user(void){
 	uint32_t psp_stack[1024];
     PSP_Init(psp_stack + 1024);
@@ -67,6 +69,8 @@ void __move_to_user(void){
 			"isb\n"
 	);
 }
+
+uint32_t test_var = 7;
 void kmain(void){
 	__sys_init();
 
@@ -79,8 +83,14 @@ void kmain(void){
 	// scheduling_tester_fcfs();
 	// scheduling_tester();	
 
-	test_sem();
-	
+	// test_sem();
+
+	sem_dec(&test_var);
+	kprintf("test_var: %d\n", test_var);
+	sem_inc(&test_var);
+	kprintf("test_var: %d\n", test_var);
+
+
 	while(1);
 }
 
