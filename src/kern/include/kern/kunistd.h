@@ -51,5 +51,8 @@ void __sys_start_task(uint32_t);
 void __sys_getpid(unsigned int *val,uint16_t value);
 
 void __sys_get_time(uint32_t *time);
+
+void __sem_dec(uint32_t* semaphore) ;
+void __sem_inc(uint32_t* semaphore) ;
 #endif /* KERN_UNISTD_H */
 

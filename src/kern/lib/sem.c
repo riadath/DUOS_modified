@@ -2,13 +2,13 @@
 
 // sem_dec
 // Declare for use from C as extern void sem_dec(void * semaphore);
-void sem_dec(void* semaphore) {
+void sem_dec(uint32_t* semaphore) {
     asm volatile(
-        ".macro WAIT_FOR_UPDATE \n"
-        "   WFI                 \n"
-        ".endm                  \n"
+        ".macro WAIT_FOR_UPDATE         \n"
+        "   WFI                         \n"
+        ".endm                          \n"
         );
-
+    
     asm volatile (
         "1: LDREX   r1, [r0]            \n"
         "   CMP	    r1, #0              \n"   // ; Test if semaphore holds the value 0
@@ -18,19 +18,23 @@ void sem_dec(void* semaphore) {
         "   CMP     r2, #0              \n"   // ; Check if Store-Exclusive succeeded
         "   BNE     1b                  \n"   // ; If Store-Exclusive failed, retry from start
         "   DMB                         \n"   // ; Required before accessing protected resource
-        "   BX      lr                  \n"
+        "   B     3f                    \n"   // ; If Store-Exclusive succeeded, test if semaphore was 0
         "2:                             \n"   // ; Take appropriate action while waiting for semaphore to be incremented
-        
+        "   WAIT_FOR_UPDATE             \n"
         "   B       1b                  \n"
+        "3:                             \n"
         : [r0] "=r" (semaphore));
 }
 
 // sem_inc
 // Declare for use from C as extern void sem_inc(void * semaphore);
-void sem_inc(void* semaphore) {
+void sem_inc(uint32_t* semaphore) {
+    // kprintf("semaphore %d\n",*semaphore);
     asm volatile(
-        ".macro SIGNAL_UPDATE \n"
-        ".endm                  \n"
+        ".macro SIGNAL_UPDATE           \n"
+        // "DSB                            \n"
+        "SEV                            \n"
+        ".endm                          \n"
         );
     asm volatile (
         "1:  LDREX   r1, [r0]           \n"
@@ -41,25 +45,20 @@ void sem_inc(void* semaphore) {
         "    CMP     r0, #1             \n"   // ; Store successful - test if incremented from zero
         "    DMB                        \n"   // ; Required before releasing protected resource
         "    BGE     2f                 \n"   // ; If initial value was 0, signal update
-        "    BX      lr                 \n"
+        "    B       3f                 \n"
         "2:                             \n"   // ; Signal waiting processors or processes
         "    SIGNAL_UPDATE              \n"
-        "    BX      lr                 \n"
+        "3:                             \n"
         : [r0] "=r" (semaphore) : );
 }
 
 
-volatile uint32_t task_semaphore = 5;
 
-void test_sem(void) {
-    kprintf("Testing semaphores\n");
 
-    sem_inc(&task_semaphore);
-    kprintf("task_semaphore: %d\n", task_semaphore);
 
-    sem_dec(&task_semaphore);
-    kprintf("task_semaphore: %d\n", task_semaphore);
 
-    kprintf("Done testing semaphores\n");
-    return;
-}
+
+
+
+
+

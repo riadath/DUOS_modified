@@ -147,3 +147,26 @@ uint32_t get_time(void){
 	asm volatile ("POP {r4-r11, ip, lr}");
 	return time;
 }
+
+void usem_inc(uint32_t *semaphore){
+	//load arg
+	asm volatile ("MOV R0, %0"
+		:
+		:"r" (semaphore)
+	);
+	asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS_sem_inc));
+	asm volatile ("POP {r4-r11, ip, lr}");
+
+}
+
+void usem_dec(uint32_t *semaphore){
+	//load arg
+	asm volatile ("MOV R0, %0"
+		:
+		:"r" (semaphore)
+	);
+	asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS_sem_dec));
+	asm volatile ("POP {r4-r11, ip, lr}");
+}

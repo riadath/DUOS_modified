@@ -7,9 +7,7 @@
 #include <types.h>
 #include <task_queue.h>
 
-void test_sem(void);
-extern void sem_dec(void* semaphore);
-extern void sem_inc(void* semaphore);
-
-
+extern void sem_dec(uint32_t* semaphore);
+extern void sem_inc(uint32_t* semaphore);
+extern volatile uint32_t task_semaphore;
 #endif

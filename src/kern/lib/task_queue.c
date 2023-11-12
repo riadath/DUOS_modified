@@ -19,7 +19,7 @@ void push_task(TCB_TypeDef *task){
 }
 TCB_TypeDef* pop_task(){
 	if (tcb_queue.size == 0){
-		return &tcb_queue.sleep;
+		push_task(&tcb_queue.sleep);
 	}
 
 	TCB_TypeDef *task = tcb_queue.q[tcb_queue.st];

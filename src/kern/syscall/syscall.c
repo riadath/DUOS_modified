@@ -58,6 +58,18 @@ void syscall(uint32_t *svc_args)
 			__sys_close(op_addr);
 			break;
 		}
+		case SYS_sem_dec:
+		{
+			uint32_t *semaphore = (uint32_t *)svc_args[0];
+			__sem_dec(semaphore);
+			break;
+		}
+		case SYS_sem_inc:
+		{
+			uint32_t *semaphore = (uint32_t *)svc_args[0];
+			__sem_inc(semaphore);
+			break;
+		}
 		case SYS_read: 
 			kprintf("Will call __sys_read\n");
 			uint8_t fd = (uint8_t)svc_args[0];
