@@ -70,6 +70,7 @@ void __move_to_user(void){
 
 volatile uint32_t var = 2;
 
+
 void kmain(void){
 	__sys_init();
 
@@ -81,11 +82,13 @@ void kmain(void){
 	// SVC_Tester();
 	// scheduling_tester_fcfs();
 	scheduling_tester();
+	
+
 	// sem_inc(&var);
 	// kprintf("var = %d\n", var);
 	// sem_inc(&var);
 	// kprintf("var = %d\n", var);
-	// sem_inc(&var);
+	// sem_dec(&var);
 	// kprintf("var = %d\n", var);
 	kprintf("End Main\n");
 	while(1);

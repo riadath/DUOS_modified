@@ -1,7 +1,23 @@
 #include <sem.h>
 
-// sem_dec
-// Declare for use from C as extern void sem_dec(void * semaphore);
+volatile uint32_t task_semaphore = 10;
+volatile WaitingQueue_TypeDef sem_queue;
+
+void add_to_sem_queue(void) {
+    push_sem(tcb_queue.current_task);
+    asm volatile("bx lr");
+}
+
+void rmv_from_sem_queue(void) {
+    void *tcb = pop_sem();
+    if(tcb == 0) {
+        asm volatile("bx lr");
+    }
+    ((TCB_TypeDef*)tcb)->status = READY;
+
+    push_task((TCB_TypeDef*)tcb);
+}
+
 void sem_dec(uint32_t* semaphore) {
     asm volatile(
         ".macro WAIT_FOR_UPDATE         \n"
@@ -18,18 +34,15 @@ void sem_dec(uint32_t* semaphore) {
         "   CMP     r2, #0              \n"   // ; Check if Store-Exclusive succeeded
         "   BNE     1b                  \n"   // ; If Store-Exclusive failed, retry from start
         "   DMB                         \n"   // ; Required before accessing protected resource
-        "   B     3f                    \n"   // ; If Store-Exclusive succeeded, test if semaphore was 0
+        "   BX      lr                  \n"   // ; If Store-Exclusive succeeded, test if semaphore was 0
         "2:                             \n"   // ; Take appropriate action while waiting for semaphore to be incremented
+        "   BL     add_to_sem_queue     \n"
         "   WAIT_FOR_UPDATE             \n"
         "   B       1b                  \n"
-        "3:                             \n"
-        : [r0] "=r" (semaphore));
+        : [r0] "=r" (semaphore) : );
 }
 
-// sem_inc
-// Declare for use from C as extern void sem_inc(void * semaphore);
 void sem_inc(uint32_t* semaphore) {
-    // kprintf("semaphore %d\n",*semaphore);
     asm volatile(
         ".macro SIGNAL_UPDATE           \n"
         "DSB                            \n"
@@ -45,17 +58,23 @@ void sem_inc(uint32_t* semaphore) {
         "    CMP     r0, #1             \n"   // ; Store successful - test if incremented from zero
         "    DMB                        \n"   // ; Required before releasing protected resource
         "    BGE     2f                 \n"   // ; If initial value was 0, signal update
-        "    B       3f                 \n"
+        "    BX      lr                 \n"
         "2:                             \n"   // ; Signal waiting processors or processes
+        "    BL      rmv_from_sem_queue \n"
         "    SIGNAL_UPDATE              \n"
-        "3:                             \n"
         : [r0] "=r" (semaphore) : );
 }
 
 
 
 
-
+void print_all_sem_queue(void);
+void print_all_sem_queue(void){
+    kprintf("sem_queue.size = %d\n", sem_queue.size);
+    for(int i = 0; i < sem_queue.size; i++){
+        kprintf("sem_queue[%d] = %d\n", i, sem_queue.q[i]->task_id);
+    }
+}
 
 
 

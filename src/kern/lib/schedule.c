@@ -2,31 +2,14 @@
 #include <sem.h>
 
 volatile TaskQueue_TypeDef tcb_queue;
-volatile WaitingQueue_TypeDef sem_queue;
 
 TCB_TypeDef tcb_list[MAX_TASK];
+uint32_t TASK_ID = 1000, exec_start_time = 0;
 
-volatile uint32_t task_semaphore = 1;
-uint32_t TASK_ID = 1000,exec_start_time = 0;
-
-
-TCB_TypeDef* get_task(void);
-void add_task(TCB_TypeDef*);
-
-
-void add_task(TCB_TypeDef* tcb) {
-	//push to waiting queue
-	sem_inc(&task_semaphore);
-	return;
-}
-
-TCB_TypeDef* get_task(void) {
-	sem_dec(&task_semaphore);
-	// return waiting task_queue
-	return 0;
-}
 
 //-------------scheduling functions----------------
+
+
 
 void schedule_next(void) {
 	if (tcb_queue.current_task->status == RUNNING) {
@@ -140,12 +123,15 @@ void task_1(void) {
 	uint32_t pid = getpid();
 	kprintf("_________________TASK %d___________________\n\n", pid);
 	while (1) {
+		sem_dec(&task_semaphore); //decrement semaphore (critical section)
+
 		value = GLOBAL_COUNT;
 		value++;
-
-		// sem_dec(&task_semaphore); //decrement semaphore (critical section)
 		uint8_t is_valid = (value != GLOBAL_COUNT + 1);
-		// sem_inc(&task_semaphore); //increment semaphore (critical section)
+		
+		
+		sem_inc(&task_semaphore); //increment semaphore (critical section
+		// sem_dec(&task_semaphore); //decrement semaphore (critical section)
 		if (is_valid) {
 			// we check is someother task(s) increase the count
 			kprintf("Error in pid %d with %d != %d\n\r", pid, value, GLOBAL_COUNT + 1);

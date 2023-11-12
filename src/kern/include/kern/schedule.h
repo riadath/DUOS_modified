@@ -44,6 +44,7 @@
 #define RUNNING 2
 #define TERMINATED 3
 #define KILLED 4
+#define SLEEPING 5
 #define MAX_TASK 20
 
 #define STOP 		1000000
