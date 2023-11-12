@@ -32,7 +32,7 @@ void sem_inc(uint32_t* semaphore) {
     // kprintf("semaphore %d\n",*semaphore);
     asm volatile(
         ".macro SIGNAL_UPDATE           \n"
-        // "DSB                            \n"
+        "DSB                            \n"
         "SEV                            \n"
         ".endm                          \n"
         );

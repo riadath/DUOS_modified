@@ -1,13 +1,18 @@
 #include <schedule.h>
 #include <sem.h>
 
-TCB_TypeDef* get_task(void);
-void add_task(TCB_TypeDef*);
-volatile uint32_t task_semaphore = 1;
+volatile TaskQueue_TypeDef tcb_queue;
+volatile WaitingQueue_TypeDef sem_queue;
 
 TCB_TypeDef tcb_list[MAX_TASK];
-uint32_t TASK_ID = 1000;
-uint32_t exec_start_time = 0;
+
+volatile uint32_t task_semaphore = 1;
+uint32_t TASK_ID = 1000,exec_start_time = 0;
+
+
+TCB_TypeDef* get_task(void);
+void add_task(TCB_TypeDef*);
+
 
 void add_task(TCB_TypeDef* tcb) {
 	//push to waiting queue
@@ -16,10 +21,9 @@ void add_task(TCB_TypeDef* tcb) {
 }
 
 TCB_TypeDef* get_task(void) {
-	// kprintf("waiting for task\n");
 	sem_dec(&task_semaphore);
 	// return waiting task_queue
-	return NULL;
+	return 0;
 }
 
 //-------------scheduling functions----------------

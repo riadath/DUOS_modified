@@ -80,14 +80,13 @@ void kmain(void){
 
 	// SVC_Tester();
 	// scheduling_tester_fcfs();
-	scheduling_tester();	
+	scheduling_tester();
 	// sem_inc(&var);
 	// kprintf("var = %d\n", var);
 	// sem_inc(&var);
 	// kprintf("var = %d\n", var);
 	// sem_inc(&var);
 	// kprintf("var = %d\n", var);
-
 	kprintf("End Main\n");
 	while(1);
 }
