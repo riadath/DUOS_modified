@@ -12,11 +12,10 @@ uint32_t TASK_ID = 1000, exec_start_time = 0;
 
 
 void schedule_next(void) {
-	if (tcb_queue.current_task->status == RUNNING) {
+	if (tcb_queue.current_task->status == RUNNING || tcb_queue.current_task->status == SLEEPING) {
 		tcb_queue.current_task->status = READY;
 		push_task(tcb_queue.current_task);
 	}
-
 	//Timing calculation
 	if (tcb_queue.current_task->status == KILLED) {
 		uint32_t turn_around_time = __getTime() - tcb_queue.current_task->start_time_t;
@@ -119,29 +118,26 @@ void scheduling_tester(void);
 void print_task_time(void);
 
 void task_1(void) {
+
 	uint32_t value, inc_count = 0;
 	uint32_t pid = getpid();
 	kprintf("_________________TASK %d___________________\n\n", pid);
 	while (1) {
-		sem_dec(&task_semaphore); //decrement semaphore (critical section)
+		// sem_dec(&task_semaphore); //decrement semaphore (critical section)
 
 		value = GLOBAL_COUNT;
 		value++;
 		uint8_t is_valid = (value != GLOBAL_COUNT + 1);
-		
-		
-		sem_inc(&task_semaphore); //increment semaphore (critical section
-		// sem_dec(&task_semaphore); //decrement semaphore (critical section)
+		// sem_inc(&task_semaphore); //increment semaphore (critical section)
+
 		if (is_valid) {
-			// we check is someother task(s) increase the count
 			kprintf("Error in pid %d with %d != %d\n\r", pid, value, GLOBAL_COUNT + 1);
 		}
 		else {
 			// sem_dec(&task_semaphore); //decrement semaphore (critical section)
 			GLOBAL_COUNT = value;
-			// sem_inc(&task_semaphore); //increment semaphore (critical section)
-
 			inc_count++;
+			// sem_inc(&task_semaphore); //increment semaphore (critical section)
 		}
 		// sem_dec(&task_semaphore); //decrement semaphore (critical section
 		is_valid = (GLOBAL_COUNT >= STOP);
@@ -152,6 +148,7 @@ void task_1(void) {
 			break;
 		}
 	}
+
 	task_exit();
 }
 void sleep_state(void) {
@@ -183,4 +180,54 @@ void print_task_time(void) {
 			task->task_id, task->execution_time, task->waiting_time, task->response_time_t, task->waiting_time + task->execution_time);
 	}
 	kprintf("_______________________________________________________________\n");
+}
+
+
+void print_task_info(void) {
+	kprintf("----------------TASK Queue--------------------\n");
+
+	for (int i = 0;i < TASK_COUNT;i++) {
+		TCB_TypeDef* task = (TCB_TypeDef*)tcb_list + i;
+		char status[20];
+		if (task->status == 1) {
+			__strcpy(status, "READY");
+		}
+		else if (task->status == 2) {
+			__strcpy(status, "RUNNING");
+		}
+		else if (task->status == 3) {
+			__strcpy(status, "TERMINATED");
+		}
+		else if (task->status == 4) {
+			__strcpy(status, "KILLED");
+		}
+		else if (task->status == 5) {
+			__strcpy(status, "SLEEPING");
+		}
+		kprintf("task id: %d, status: %s\n", task->task_id, status);
+	}
+}
+
+void print_task_sem_queue(void) {
+	kprintf("------------------SEM Queue---------------------\n");
+	for (int i = 0;i < sem_queue.size;i++) {
+		TCB_TypeDef* task = sem_queue.q[i];
+		char status[20];
+		if (task->status == 1) {
+			__strcpy(status, "READY");
+		}
+		else if (task->status == 2) {
+			__strcpy(status, "RUNNING");
+		}
+		else if (task->status == 3) {
+			__strcpy(status, "TERMINATED");
+		}
+		else if (task->status == 4) {
+			__strcpy(status, "KILLED");
+		}
+		else if (task->status == 5) {
+			__strcpy(status, "SLEEPING");
+		}
+		kprintf("task id: %d, status: %s\n", task->task_id, status);
+	}
 }

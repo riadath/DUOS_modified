@@ -45,10 +45,14 @@ void push_sem(TCB_TypeDef *task){
 
 TCB_TypeDef *pop_sem(void){
 	if (sem_queue.size == 0){
-		return 0;
+		return;
 	}
 	TCB_TypeDef *task = sem_queue.q[sem_queue.st];
 	sem_queue.st = (sem_queue.st + 1) % sem_queue.max;
 	sem_queue.size--;
 	return task;
+}
+
+int is_sem_empty(void){
+	return sem_queue.size == 0;
 }

@@ -31,92 +31,113 @@ void __NVIC_DisableIRQn(enum IRQn_TypeDef IRQn){
     }
 }
 
-void __disable_irq(){
-    asm("mov r0,#1");
-    asm("msr primask,r0");
+uint32_t __NVIC_GetActive (enum IRQn_TypeDef IRQn)
+{
+    if(IRQn >= 0) {
+        uint32_t index = IRQn / 32;
+        uint32_t position = IRQn % 32;
+        // returns active status of interrupt
+        return (uint32_t) ( NVIC->IABR[index] & (uint32_t)( 1 << position ) );
+    }
+    return 0;
 }
 
-void __enable_irq(){
-    asm("mov r0,#0");
-    asm("msr primask,r0");
+uint32_t __get_pending_IRQn(enum IRQn_TypeDef IRQn)
+{
+    if(IRQn >= 0) {
+        uint32_t index = IRQn / 32;
+        uint32_t position = IRQn % 32;        
+        // returns the pending status of an interrupt, 1 = pending, 0 = not pending
+        return (uint32_t) ( NVIC->ISPR[index] & (uint32_t)( 1 << position ) );
+    }
+    return 0;
 }
 
-void __set_BASEPRI(uint32_t value){
-    value = value << (8U - 4U) & (uint32_t)0xFFUL;
-    asm("mov r0, %0" : "=r" (value) : "r" (value));
-    asm("msr basepri, r0");
-}
-
-
-void __unset_BASEPRI(){
-    asm("mov r0,#0");
-    asm("msr basepri,r0");
-}
-
-void __set_PRIMASK(uint32_t priMask){
-    asm("mov r0, %0" : "=r" (priMask) : "r" (priMask));
-    asm("msr primask, r0");
-}
-
-uint32_t __get_PRIMASK(void){
-    uint32_t value;
-    asm("mrs r0,primask");
-    asm("mov %0,r0":"=r"(value));
-    return value;
-}
-
-void __enable_fault_irq(void){
-    asm("mov r0, #1");
-    asm("msr primask, r0");
-}
-
-void __disable_fault_irq(void){
-    asm("mov r0, #0");
-    asm("msr primask, r0");
-}
-
-void __set_FAULTMASK(void){
-    asm("mov r0, #1");
-    asm("msr faultmask, r0");
-}
-
-void __clear_FAULTMASK(void){
-    asm("mov r0, #0");
-    asm("msr faultmask, r0");
-}
-uint32_t __get_FAULTMASK(void){
-    uint32_t value;
-    asm("mrs r0,faultmask");
-    asm("mov %0,r0":"=r"(value));
-    return value;
-}
-
-void __clear_pending_IRQn(enum IRQn_TypeDef IRQn){
-    if(IRQn >= 0){
-        NVIC -> ICPR[IRQn/32] |= (1 << (IRQn%32));
+void __clear_pending_IRQn(enum IRQn_TypeDef IRQn) 
+{
+    if(IRQn >= 0) {
+        uint32_t index = IRQn / 32;
+        uint32_t position = IRQn % 32;        
+        // clears the interrupt pending bit
+        NVIC->ICPR[index] &= ~( (uint32_t)(1u << position) );
     }
 }
 
-uint32_t __get_pending_IRQn(enum IRQn_TypeDef IRQn){
-    uint32_t pendingState;
-    if(IRQn >= 0){
-        int regNumber = IRQn/32;
-        int offset = IRQn % 32;
-        pendingState = NVIC->ICPR[regNumber] & (1 << regNumber);
-        pendingState = pendingState >> 5;
-        return pendingState;
+void __set_pending_IRQn(enum IRQn_TypeDef IRQn)
+{
+    if(IRQn >= 0) {
+        uint32_t index = IRQn / 32;
+        uint32_t position = IRQn % 32;        
+        // clears the interrupt pending bit
+        NVIC->ISPR[index] |= ( (uint32_t)(1u << position) );
     }
+
 }
 
-uint32_t __NVIC_GetActive(enum IRQn_TypeDef IRQn){
-    uint32_t pendingState;
-    if(IRQn >= 0){
-        int regNumber = IRQn/32;
-        int offset = IRQn % 32;
-        pendingState = NVIC->IABR[regNumber] & (1 << regNumber);
-        pendingState = pendingState >> 5;
-        return pendingState;
-    }
+void __disable_irq(void)
+{
+    __asm volatile ("cpsid i" : : : "memory"); 
+}
+
+
+void __enable_irq()
+{
+    __asm volatile ("CPSIE i"); // clears primask == enables interrupts
+}
+
+
+void __set_BASEPRI(uint32_t basePri)
+{
+    basePri = basePri <<4;
+    __asm volatile ("MSR basepri, %0" : : "r" (basePri) : "memory");
+}
+
+void __unset_BASEPRI(uint32_t value)
+{
+    // unmask interrupts greater or equal to the given argument/priority number
+    __asm volatile ("MOVS R0, #0x0");
+    __asm volatile ("MSR BASEPRI, R0");
+    __set_BASEPRI(value);
+}
+
+void __set_PRIMASK(uint32_t priMask)
+{
+    __asm volatile ("MSR primask, %0" : : "r" (priMask) : "memory");
+}
+
+uint32_t __get_PRIMASK(void)
+{
+    uint32_t result;
+    __asm volatile ("MRS %0, primask" : "=r" (result) );
+    return (result);
+}
+
+void __enable_fault_irq(void)
+{
+    __asm volatile ("CPSIE f" : : : "memory");
+}
+void __set_FAULTMASK(uint32_t faultMask)
+{
+    __asm volatile ("MSR faultmask, %0" : : "r" (faultMask) : "memory");
+}
+
+void __disable_fault_irq(void)
+{
+    __asm volatile ("CPSID f" : : : "memory");  
+}
+
+uint32_t __get_FAULTMASK(void)
+{
+    uint32_t result;
+    __asm volatile ("MRS %0, faultmask" : "=r" (result) );
+    return (result);
+}
+
+uint32_t __get_BASEPRI(void)
+{
+    uint32_t result;
+    __asm volatile ("MRS %0, basepri" : "=r" (result) );
+    return (result>>4);
 }
 
 

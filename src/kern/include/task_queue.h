@@ -33,4 +33,5 @@ void push_task(TCB_TypeDef *task);
 void push_sem(TCB_TypeDef *task);
 TCB_TypeDef *pop_task(void);
 TCB_TypeDef *pop_sem(void);
+int is_sem_empty(void);
 #endif

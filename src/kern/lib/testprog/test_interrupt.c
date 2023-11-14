@@ -39,7 +39,7 @@ void test_masking(void){
 
 
 	kprintf("Setting Fault Mask to 1\n");
-	__set_FAULTMASK();
+	__set_FAULTMASK(1);
 	kprintf("Faultmask Value (get) : %d\n",__get_FAULTMASK());
 	kprintf("After Setting Fault Mask\nSysTick Does not Work\n");
 	__SysTick_init(1000);
