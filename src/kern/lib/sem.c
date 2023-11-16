@@ -52,11 +52,21 @@ void sem_inc(uint32_t* semaphore) {
 
 void wait(void){
     sem_dec(&task_semaphore);
-    while(task_semaphore != 0);
+    if(task_semaphore < 0){
+        push_sem(tcb_queue.current_task);
+        tcb_queue.current_task->status = SLEEPING;
+    }
+    while(task_semaphore != 0){
+        asm volatile("nop");
+    }
 }
 
 void signal(void){
     sem_inc(&task_semaphore);
+    if(task_semaphore >= 0){
+        TCB_TypeDef *task = pop_sem();
+        task->status = READY;
+    }
 }
 
 

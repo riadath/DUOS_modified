@@ -116,66 +116,48 @@ void __attribute__((naked)) PendSV_Handler(void) {
 
 uint32_t GLOBAL_COUNT = 0;
 
-void task_1(void);
+void task_with_semaphore(void);
 void sleep_state(void);
 void scheduling_tester(void);
 void print_task_time(void);
 
-void task_1(void) {
+void task_with_semaphore(void) {
 	uint32_t pid = getpid();
 	uint32_t value, inc_count1 = 0;
 
 	wait(); //increment semaphore (critical section)
-	
 	kprintf("________________________Task pid: %d\n\r", pid);
-
 	signal(); //increment semaphore (critical section)
-
 	while (1) {
-
 		wait(); //increment semaphore (critical section)
-		
-
 		value = GLOBAL_COUNT;
 		value++;
 		uint8_t is_valid = (value != GLOBAL_COUNT + 1);
-
 		signal(); //increment semaphore (critical section)
-
-
 		if (is_valid) {
+			wait(); //increment semaphore (critical section)
 			kprintf("Error in pid %d with %d != %d\n\r", pid, value, GLOBAL_COUNT + 1);
+			signal();
 		}
 		else {
 			wait(); //decrement semaphore (critical section)
-
-	
 			GLOBAL_COUNT = value;
 			inc_count1++;
-
 			signal(); //increment semaphore (critical section)
 		}
-
-
 		wait(); //decrement semaphore (critical section
-
 		is_valid = (GLOBAL_COUNT >= STOP);
-
 		signal(); //increment semaphore (critical section)
-
 		if (is_valid) {
 			wait(); //decrement semaphore (critical section)
-			
-			kprintf("Total increment done by task %d is: %d\n\r",pid, inc_count1);
-
+			kprintf("Total increment done by task %d is: %d\n\r", pid, inc_count1);
 			signal(); //increment semaphore (critical section)
 			break;
 		}
 	}
-
 	task_exit();
 }
-void task_2(void) {
+void task_no_semaphore(void) {
 	uint32_t pid = getpid();
 	uint32_t value, inc_count1 = 0;
 	kprintf("________________________Task pid: %d\n\r", pid);
@@ -193,7 +175,7 @@ void task_2(void) {
 		is_valid = (GLOBAL_COUNT >= STOP);
 
 		if (is_valid) {
-			kprintf("Total increment done by task %d is: %d\n\r",pid, inc_count1);
+			kprintf("Total increment done by task %d is: %d\n\r", pid, inc_count1);
 			break;
 		}
 	}
@@ -213,11 +195,11 @@ void sleep_state(void) {
 void scheduling_tester(void) {
 	init_queue();
 	for (int i = 0; i < TASK_COUNT; i++) {
-		create_tcb(tcb_list + i, task_2, (uint32_t*)(TASK_STACK_START - i * TASK_STACK_SIZE));
+		create_tcb(tcb_list + i, task_with_semaphore, (uint32_t*)(TASK_STACK_START - i * TASK_STACK_SIZE));
 		push_task(tcb_list + i);
 	}
-	// create_tcb(tcb_list, task_1, (uint32_t*)TASK_STACK_START);
-	// create_tcb(tcb_list + 1, task_2, (uint32_t*)(TASK_STACK_START - TASK_STACK_SIZE));
+	// create_tcb(tcb_list, task_with_semaphore, (uint32_t*)TASK_STACK_START);
+	// create_tcb(tcb_list + 1, task_no_semaphore, (uint32_t*)(TASK_STACK_START - TASK_STACK_SIZE));
 	// push_task(tcb_list);
 	// push_task(tcb_list + 1);
 
