@@ -7,24 +7,25 @@ void add_to_sem_queue(void) {
     if (tcb_queue.current_task->status == KILLED) {
         return;
     }
-    tcb_queue.current_task->status = SLEEPING;
+    // tcb_queue.current_task->status = SLEEPING;
     push_sem(tcb_queue.current_task);
 }
 
 void rmv_from_sem_queue(void) {
 
-    //set all tasks to ready
-    while(!is_sem_empty()){
-        TCB_TypeDef* task = pop_sem();
-        task->status = READY;
-        push_task(task);
+    while(!tcb_queue.current_task->status == SLEEPING){
+        push_task(tcb_queue.current_task);
+        tcb_queue.current_task = pop_task;
     }
+    // set all tasks to ready
+    // while(!is_sem_empty()){
+    //     TCB_TypeDef* task = pop_sem();
+    //     // task->status = READY;
+    // }
 
 }
 void sem_dec(uint32_t* semaphore) {
-    // if(*semaphore == 0){
-    //     add_to_sem_queue();
-    // }
+  
     asm volatile(
         ".macro WAIT_FOR_UPDATE         \n"
         "   WFI                         \n"
@@ -40,7 +41,7 @@ void sem_dec(uint32_t* semaphore) {
         "   CMP     r2, #0              \n"   // ; Check if Store-Exclusive succeeded
         "   BNE     1b                  \n"   // ; If Store-Exclusive failed, retry from start
         "   DMB                         \n"   // ; Required before accessing protected resource
-        "   B      3f                  \n"   
+        "   B      3f                   \n"   
         "2:                             \n"   // ; Take appropriate action while waiting for semaphore to be incremented
         "   WAIT_FOR_UPDATE             \n"
         "   B       1b                  \n"
@@ -49,9 +50,6 @@ void sem_dec(uint32_t* semaphore) {
 }
 
 void sem_inc(uint32_t* semaphore) {
-    // if(*semaphore >= 0){
-    //     rmv_from_sem_queue();
-    // }
     asm volatile(
         ".macro SIGNAL_UPDATE           \n"
         "    SEV                        \n"
@@ -69,7 +67,6 @@ void sem_inc(uint32_t* semaphore) {
         "    BX      lr                 \n"
         "2:                             \n"   // ; Signal waiting processors or processes
         "    SIGNAL_UPDATE              \n"
-        // "    BX      lr                 \n"
         : [r0] "=r" (semaphore) : );
 }
 

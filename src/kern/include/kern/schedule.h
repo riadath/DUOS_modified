@@ -47,7 +47,7 @@
 #define SLEEPING 5
 #define MAX_TASK 20
 
-#define STOP 		1000000
+#define STOP 		300000
 #define TASK_COUNT 	10
 #define PER_TASK_TIME 10 //10 ms for each task
 
