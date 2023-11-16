@@ -3,29 +3,8 @@
 volatile int task_semaphore = 1;
 volatile WaitingQueue_TypeDef sem_queue;
 
-void add_to_sem_queue(void) {
-    if (tcb_queue.current_task->status == KILLED) {
-        return;
-    }
-    // tcb_queue.current_task->status = SLEEPING;
-    push_sem(tcb_queue.current_task);
-}
 
-void rmv_from_sem_queue(void) {
-
-    while(!tcb_queue.current_task->status == SLEEPING){
-        push_task(tcb_queue.current_task);
-        tcb_queue.current_task = pop_task;
-    }
-    // set all tasks to ready
-    // while(!is_sem_empty()){
-    //     TCB_TypeDef* task = pop_sem();
-    //     // task->status = READY;
-    // }
-
-}
 void sem_dec(uint32_t* semaphore) {
-  
     asm volatile(
         ".macro WAIT_FOR_UPDATE         \n"
         "   WFI                         \n"
@@ -71,16 +50,14 @@ void sem_inc(uint32_t* semaphore) {
 }
 
 
-
-
-void print_all_sem_queue(void);
-void print_all_sem_queue(void) {
-    kprintf("sem_queue.size = %d\n", sem_queue.size);
-    for (int i = 0; i < sem_queue.size; i++) {
-        kprintf("sem_queue[%d] = %d\n", i, sem_queue.q[i]->task_id);
-    }
+void wait(void){
+    sem_dec(&task_semaphore);
+    while(task_semaphore != 0);
 }
 
+void signal(void){
+    sem_inc(&task_semaphore);
+}
 
 
 

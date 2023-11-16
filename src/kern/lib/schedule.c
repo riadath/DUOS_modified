@@ -8,6 +8,7 @@ uint32_t TASK_ID = 1000, exec_start_time = 0;
 
 
 
+
 //-------------scheduling functions----------------
 void schedule_next(void) {
 	if (tcb_queue.current_task->status == RUNNING) {
@@ -124,49 +125,50 @@ void task_1(void) {
 	uint32_t pid = getpid();
 	uint32_t value, inc_count1 = 0;
 
-	sem_dec(&task_semaphore); //increment semaphore (critical section)
-	while(task_semaphore != 0);
+	wait(); //increment semaphore (critical section)
+	
 	kprintf("________________________Task pid: %d\n\r", pid);
-	sem_inc(&task_semaphore); //increment semaphore (critical section)
+
+	signal(); //increment semaphore (critical section)
 
 	while (1) {
 
-		sem_dec(&task_semaphore); //increment semaphore (critical section)
-		while(task_semaphore != 0);
+		wait(); //increment semaphore (critical section)
+		
 
 		value = GLOBAL_COUNT;
 		value++;
 		uint8_t is_valid = (value != GLOBAL_COUNT + 1);
 
-		sem_inc(&task_semaphore); //increment semaphore (critical section)
+		signal(); //increment semaphore (critical section)
 
 
 		if (is_valid) {
 			kprintf("Error in pid %d with %d != %d\n\r", pid, value, GLOBAL_COUNT + 1);
 		}
 		else {
-			sem_dec(&task_semaphore); //decrement semaphore (critical section)
+			wait(); //decrement semaphore (critical section)
 
-			while(task_semaphore != 0);
+	
 			GLOBAL_COUNT = value;
 			inc_count1++;
 
-			sem_inc(&task_semaphore); //increment semaphore (critical section)
+			signal(); //increment semaphore (critical section)
 		}
 
 
-		sem_dec(&task_semaphore); //decrement semaphore (critical section
+		wait(); //decrement semaphore (critical section
 
-		while(task_semaphore != 0);
 		is_valid = (GLOBAL_COUNT >= STOP);
 
-		sem_inc(&task_semaphore); //increment semaphore (critical section)
+		signal(); //increment semaphore (critical section)
 
 		if (is_valid) {
-			sem_dec(&task_semaphore); //decrement semaphore (critical section)
-			while(task_semaphore != 0);
+			wait(); //decrement semaphore (critical section)
+			
 			kprintf("Total increment done by task %d is: %d\n\r",pid, inc_count1);
-			sem_inc(&task_semaphore); //increment semaphore (critical section)
+
+			signal(); //increment semaphore (critical section)
 			break;
 		}
 	}
@@ -211,7 +213,7 @@ void sleep_state(void) {
 void scheduling_tester(void) {
 	init_queue();
 	for (int i = 0; i < TASK_COUNT; i++) {
-		create_tcb(tcb_list + i, task_1, (uint32_t*)(TASK_STACK_START - i * TASK_STACK_SIZE));
+		create_tcb(tcb_list + i, task_2, (uint32_t*)(TASK_STACK_START - i * TASK_STACK_SIZE));
 		push_task(tcb_list + i);
 	}
 	// create_tcb(tcb_list, task_1, (uint32_t*)TASK_STACK_START);

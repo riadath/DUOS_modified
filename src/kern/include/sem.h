@@ -9,5 +9,7 @@
 
 extern void sem_dec(uint32_t* semaphore);
 extern void sem_inc(uint32_t* semaphore);
+void wait(void);
+void signal(void);
 extern volatile int task_semaphore;
 #endif
