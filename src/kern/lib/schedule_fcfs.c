@@ -67,8 +67,8 @@ void start_exec_fcfs(void){
 
 //attribute = naked -> active
 //attribute = weak -> not active
-
-void __attribute__((weak)) PendSV_Handler(void){
+#ifdef RR
+void __attribute__((naked)) PendSV_Handler(void){
 	SCB->ICSR |= (1<<27);
 	asm volatile(
 		"stmdb r0!, {r4-r11}\n"
@@ -89,7 +89,7 @@ void __attribute__((weak)) PendSV_Handler(void){
 		"bx lr\n"
 	);
 }
-
+#endif
 
 // __________________SCHEUDLING TESTER__________________
 
@@ -139,6 +139,8 @@ void sleep_state_fcfs(void){
 }
 
 void scheduling_tester_fcfs(void){
+	kprintf("________START SCHEDULING TESTER FOR FCFS________\n");
+
 	init_queue();
 	
 	for(int i = 0;i < TASK_COUNT;i++){
@@ -171,8 +173,8 @@ void print_task_timing_data(void) {
 
     for (int i = 0; i < TASK_COUNT; i++) {
         TCB_TypeDef* task = (TCB_TypeDef*)task_fcfs + i;
-        kprintf("Task ID: %d, Execution Time: %d, Waiting Time: %d, Response Time: %d\n",
-                task->task_id, task->execution_time, task->waiting_time, task->response_time_t);
+        kprintf("Task ID: %d, Execution Time: %d, Waiting Time: %d, Response Time: %d Turn Around Time: %d\n",
+                task->task_id, task->execution_time, task->waiting_time, task->response_time_t,task->waiting_time + task->execution_time);
     }
     kprintf("_______________________________________________________________\n");
 }

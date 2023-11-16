@@ -6,28 +6,18 @@ volatile uint32_t if_lock = 0;
 TCB_TypeDef tcb_list[MAX_TASK];
 uint32_t TASK_ID = 1000, exec_start_time = 0;
 
-
-
-
 //-------------scheduling functions----------------
 void schedule_next(void) {
 	if (tcb_queue.current_task->status == RUNNING) {
 		tcb_queue.current_task->status = READY;
 		push_task(tcb_queue.current_task);
 	}
-	// if (tcb_queue.current_task->status == SLEEPING) {
-	// 	push_task(tcb_queue.current_task);
-	// }
-	//Timing calculation
 	if (tcb_queue.current_task->status == KILLED) {
 		uint32_t turn_around_time = __getTime() - tcb_queue.current_task->start_time_t;
 		tcb_queue.current_task->waiting_time = turn_around_time - tcb_queue.current_task->execution_time;
 	}
 	tcb_queue.current_task->execution_time += PER_TASK_TIME;
-
-
 	tcb_queue.current_task = pop_task();
-
 	tcb_queue.current_task->status = RUNNING;
 	//Timing calculation
 	if (tcb_queue.current_task->response_time_t == 0) {
@@ -79,7 +69,8 @@ void create_tcb(TCB_TypeDef* tcb, void(*task)(void), uint32_t* stack_start) {
 
 //attribute = naked -> active
 //attribute = weak -> not active
-
+#ifndef RR
+#define RR
 void __attribute__((naked)) PendSV_Handler(void) {
 	//Clear all pending interrupts
 	SCB->ICSR |= (1 << 27);
@@ -98,7 +89,6 @@ void __attribute__((naked)) PendSV_Handler(void) {
 	//Schedule next task
 	schedule_next();
 
-
 	asm volatile(
 		"mov r0, %0"
 		:
@@ -111,7 +101,7 @@ void __attribute__((naked)) PendSV_Handler(void) {
 		"bx lr\n"
 		);
 }
-
+#endif
 //-------------helper functions----------------
 
 uint32_t GLOBAL_COUNT = 0;
@@ -187,12 +177,14 @@ void task_no_semaphore(void) {
 void sleep_state(void) {
 	set_pending(0);
 	print_task_time();
+	scheduling_tester_fcfs();
 	kprintf("Sleeping\n");
 	while (1);
 }
 
 
 void scheduling_tester(void) {
+	kprintf("________START SCHEDULING TESTER FOR ROUND ROBIN WITH(OUT) SEMAPHORE________\n");
 	init_queue();
 	for (int i = 0; i < TASK_COUNT; i++) {
 		create_tcb(tcb_list + i, task_with_semaphore, (uint32_t*)(TASK_STACK_START - i * TASK_STACK_SIZE));
