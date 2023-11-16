@@ -170,3 +170,13 @@ void usem_dec(uint32_t *semaphore){
 	asm volatile("svc %0" : : "i" (SYS_sem_dec));
 	asm volatile ("POP {r4-r11, ip, lr}");
 }
+
+void set_pending(uint8_t value){
+	asm volatile ("MOV R0, %0"
+		:
+		:"r" (value)
+	);
+	asm volatile ("PUSH {r4-r11, ip, lr}");
+	asm volatile("svc %0" : : "i" (SYS_set_pending));
+	asm volatile ("POP {r4-r11, ip, lr}");
+}

@@ -42,6 +42,7 @@ void yeild(void);
 uint32_t getpid(void);
 void start_task(uint32_t psp);
 uint32_t get_time(void);
+void set_pending(uint8_t value);
 void usem_inc(uint32_t *semaphore);
 void usem_dec(uint32_t *semaphore);
 #endif
