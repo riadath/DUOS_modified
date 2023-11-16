@@ -70,7 +70,6 @@ void __move_to_user(void){
 
 volatile uint32_t var = 0;
 
-
 void kmain(void){
 	__sys_init();
 

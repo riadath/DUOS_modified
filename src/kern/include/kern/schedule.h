@@ -40,6 +40,7 @@
 #include <types.h>
 #include <task_queue.h>
 #include <kstring.h>
+#include <schedule_fcfs.h>
 #define READY 1
 #define RUNNING 2
 #define TERMINATED 3
@@ -50,6 +51,8 @@
 #define STOP 		200000
 #define TASK_COUNT 	10
 #define PER_TASK_TIME 10 //10 ms for each task
+
+extern volatile uint8_t scheduling_algo; //0 for round robin, 1 for fcfs
 
 void schedule_next(void);
 void create_tcb(TCB_TypeDef *, void(*task)(void), uint32_t *stack_start);

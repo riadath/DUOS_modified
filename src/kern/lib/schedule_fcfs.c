@@ -108,12 +108,12 @@ void task_1_fcfs(void){
 	uint32_t inc_count=0;
 	uint32_t pid = getpid();
 	//default loop runs 100000000 times
-	uint32_t loop = 10000000;
-	while(loop--){
-		asm("nop");
-	}
+	// uint32_t loop = 10000000;
+	// while(loop--){
+	// 	asm("nop");
+	// }
 
-	kprintf("___________________Task FCFS %d___________________\n",pid);
+	kprintf("________________________Task pid: %d\n\r", pid);
 	while(1){
 		value = GLOBAL_COUNT_FCFS;
 		value++;
@@ -123,7 +123,7 @@ void task_1_fcfs(void){
 			GLOBAL_COUNT_FCFS=value;
 			inc_count++;
 		}
-		if(GLOBAL_COUNT_FCFS >= STOP){
+		if(GLOBAL_COUNT_FCFS >= STOP+100000){
 			kprintf("Total increment done by task %d is: %d\n\r",pid,inc_count);
 			break;
 		}
@@ -139,6 +139,8 @@ void sleep_state_fcfs(void){
 }
 
 void scheduling_tester_fcfs(void){
+	scheduling_algo = 1;
+
 	kprintf("________START SCHEDULING TESTER FOR FCFS________\n");
 
 	init_queue();

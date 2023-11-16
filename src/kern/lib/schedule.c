@@ -3,6 +3,7 @@
 
 volatile TaskQueue_TypeDef tcb_queue;
 volatile uint32_t if_lock = 0;
+volatile uint8_t scheduling_algo = 0;
 TCB_TypeDef tcb_list[MAX_TASK];
 uint32_t TASK_ID = 1000, exec_start_time = 0;
 
@@ -87,7 +88,10 @@ void __attribute__((naked)) PendSV_Handler(void) {
 		:
 		);
 	//Schedule next task
-	schedule_next();
+	if(scheduling_algo == 0)
+		schedule_next();
+	else if(scheduling_algo == 1)
+		next_task_fcfs();
 
 	asm volatile(
 		"mov r0, %0"
@@ -184,6 +188,7 @@ void sleep_state(void) {
 
 
 void scheduling_tester(void) {
+	scheduling_algo = 0;
 	kprintf("________START SCHEDULING TESTER FOR ROUND ROBIN WITH(OUT) SEMAPHORE________\n");
 	init_queue();
 	for (int i = 0; i < TASK_COUNT; i++) {

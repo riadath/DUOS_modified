@@ -18,7 +18,7 @@
 #include <kstdio.h>
 #include <unistd.h>
 #include <task_queue.h>
-
+#include <schedule.h>
 
 void next_task_fcfs(void);
 void start_exec_fcfs(void);
