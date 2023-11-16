@@ -74,15 +74,16 @@ volatile uint32_t var = 0;
 void kmain(void){
 	__sys_init();
 
-	__NVIC_SetPriority(SVCall_IRQn, 1);
-	__NVIC_SetPriority(SysTick_IRQn, 0xFF);
+	__NVIC_SetPriority(SVCall_IRQn, 0x1);
+	__NVIC_SetPriority(SysTick_IRQn, 0x2);
 	__NVIC_SetPriority(PendSV_IRQn, 0xFF); 
-	// __move_to_user();
+	
+	__move_to_user();
 
 
 	// SVC_Tester();
 	// scheduling_tester_fcfs();
-	// scheduling_tester();
+	scheduling_tester();
 	
 	// sem_inc(&var);
 	// kprintf("var = %d\n", var);
@@ -90,14 +91,6 @@ void kmain(void){
 	// kprintf("var = %d\n", var);
 	// sem_dec(&var);
 	// kprintf("var = %d\n", var);
-	
-	
-	kprintf("Start Main\n");
-	// asm volatile("WFE\n");
-	// asm volatile(
-	// 	"WFI\n"
-	// );
-	kprintf("End Main\n");
 	while(1);
 }
 

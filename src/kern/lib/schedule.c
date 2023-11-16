@@ -7,10 +7,29 @@ TCB_TypeDef tcb_list[MAX_TASK];
 uint32_t TASK_ID = 1000, exec_start_time = 0;
 
 
+void wait(void) {
+	asm volatile(
+		"mov r0, %[x]\n"
+		"bl sem_dec\n"
+		"bx lr\n"
+		:
+	: [x] "r" (&task_semaphore)
+		);
+}
+
+void signal(void) {
+	asm volatile(
+		"mov r0, %[x]\n"
+		"bl sem_inc\n"
+		"bx lr\n"
+		:
+	: [x] "r" (&task_semaphore)
+		);
+}
+
+
+
 //-------------scheduling functions----------------
-
-
-
 void schedule_next(void) {
 	if (tcb_queue.current_task->status == RUNNING || tcb_queue.current_task->status == SLEEPING) {
 		tcb_queue.current_task->status = READY;
@@ -25,12 +44,17 @@ void schedule_next(void) {
 
 
 	tcb_queue.current_task = pop_task();
+	while (tcb_queue.current_task->status == SLEEPING) {
+		push_task(tcb_queue.current_task);
+		tcb_queue.current_task = pop_task();
+	}
 	tcb_queue.current_task->status = RUNNING;
 
 	//Timing calculation
 	if (tcb_queue.current_task->response_time_t == 0) {
 		tcb_queue.current_task->response_time_t = __getTime();
 	}
+
 
 	return;
 }
@@ -118,17 +142,16 @@ void scheduling_tester(void);
 void print_task_time(void);
 
 void task_1(void) {
-
 	uint32_t value, inc_count = 0;
 	uint32_t pid = getpid();
 	kprintf("_________________TASK %d___________________\n\n", pid);
-	while (1) {
-		// sem_dec(&task_semaphore); //decrement semaphore (critical section)
-
+	while(1) {
+		asm volatile("BL wait");
 		value = GLOBAL_COUNT;
 		value++;
 		uint8_t is_valid = (value != GLOBAL_COUNT + 1);
-		// sem_inc(&task_semaphore); //increment semaphore (critical section)
+
+		asm volatile("BL signal");
 
 		if (is_valid) {
 			kprintf("Error in pid %d with %d != %d\n\r", pid, value, GLOBAL_COUNT + 1);
@@ -183,6 +206,7 @@ void print_task_time(void) {
 }
 
 
+void print_task_info(void);
 void print_task_info(void) {
 	kprintf("----------------TASK Queue--------------------\n");
 

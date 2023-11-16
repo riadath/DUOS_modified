@@ -21,11 +21,12 @@ void add_to_sem_queue(void) {
 }
 
 void rmv_from_sem_queue(void) {
+
     if (is_sem_empty()) {
         asm volatile("bx lr");
     }
     TCB_TypeDef* task = pop_sem();
-    task->status = RUNNING;
+    task->status = READY;
     asm volatile("bx lr");
     //set all task in sem_queue to ready (pop from sem_queue)
     // while(!is_sem_empty()){
@@ -36,11 +37,10 @@ void rmv_from_sem_queue(void) {
 }
 
 void sem_dec(uint32_t* semaphore) {
-    
     asm volatile(
         ".macro WAIT_FOR_UPDATE         \n"
         "   BL     add_to_sem_queue     \n"
-        "   WFI                         \n"
+        "   WFE                         \n"
         ".endm                          \n"
         );
 
@@ -53,7 +53,7 @@ void sem_dec(uint32_t* semaphore) {
         "   CMP     r2, #0              \n"   // ; Check if Store-Exclusive succeeded
         "   BNE     1b                  \n"   // ; If Store-Exclusive failed, retry from start
         "   DMB                         \n"   // ; Required before accessing protected resource
-        "   BX      lr                  \n"   // ; If Store-Exclusive succeeded, test if semaphore was 0
+        "   BX      lr                  \n"   
         "2:                             \n"   // ; Take appropriate action while waiting for semaphore to be incremented
         "   WAIT_FOR_UPDATE             \n"
         "   B       1b                  \n"
