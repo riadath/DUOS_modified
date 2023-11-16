@@ -5,7 +5,7 @@ volatile WaitingQueue_TypeDef sem_queue;
 
 void add_to_sem_queue(void) {
     if (tcb_queue.current_task->status == KILLED) {
-        asm volatile("bx lr");
+        return;
     }
     tcb_queue.current_task->status = SLEEPING;
     push_sem(tcb_queue.current_task);
@@ -19,7 +19,6 @@ void rmv_from_sem_queue(void) {
         task->status = READY;
         push_task(task);
     }
-    asm volatile("bx lr");
 
 }
 void sem_dec(uint32_t* semaphore) {
@@ -28,7 +27,6 @@ void sem_dec(uint32_t* semaphore) {
     // }
     asm volatile(
         ".macro WAIT_FOR_UPDATE         \n"
-        "BL add_to_sem_queue            \n"
         "   WFI                         \n"
         ".endm                          \n"
         );
@@ -42,10 +40,11 @@ void sem_dec(uint32_t* semaphore) {
         "   CMP     r2, #0              \n"   // ; Check if Store-Exclusive succeeded
         "   BNE     1b                  \n"   // ; If Store-Exclusive failed, retry from start
         "   DMB                         \n"   // ; Required before accessing protected resource
-        "   BX      lr                  \n"   
+        "   B      3f                  \n"   
         "2:                             \n"   // ; Take appropriate action while waiting for semaphore to be incremented
         "   WAIT_FOR_UPDATE             \n"
-        // "   B       1b                  \n"
+        "   B       1b                  \n"
+        "3:                             \n"
         : [r0] "=r" (semaphore) : );
 }
 
@@ -55,8 +54,6 @@ void sem_inc(uint32_t* semaphore) {
     // }
     asm volatile(
         ".macro SIGNAL_UPDATE           \n"
-        "    DSB                        \n"
-        "BL rmv_from_sem_queue          \n"
         "    SEV                        \n"
         ".endm                          \n"
         );
@@ -68,10 +65,11 @@ void sem_inc(uint32_t* semaphore) {
         "    BNE     1b                 \n"   // ; Store failed - retry immediately
         "    CMP     r0, #1             \n"   // ; Store successful - test if incremented from zero
         "    DMB                        \n"   // ; Required before releasing protected resource
-        "    BEQ     2f                 \n"   // ; If initial value was 0, signal update
+        "    BGE     2f                 \n"   // ; If initial value was 0, signal update
         "    BX      lr                 \n"
         "2:                             \n"   // ; Signal waiting processors or processes
         "    SIGNAL_UPDATE              \n"
+        // "    BX      lr                 \n"
         : [r0] "=r" (semaphore) : );
 }
 

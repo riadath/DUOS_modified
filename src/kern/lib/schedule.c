@@ -7,27 +7,6 @@ TCB_TypeDef tcb_list[MAX_TASK];
 uint32_t TASK_ID = 1000, exec_start_time = 0;
 
 
-void wait(void) {
-	asm volatile(
-		"mov r0, %[x]\n"
-		"bl sem_dec\n"
-		"bx lr\n"
-		:
-	: [x] "r" (&task_semaphore)
-		);
-}
-
-void signal(void) {
-	asm volatile(
-		"mov r0, %[x]\n"
-		"bl sem_inc\n"
-		"bx lr\n"
-		:
-	: [x] "r" (&task_semaphore)
-		);
-}
-
-
 
 //-------------scheduling functions----------------
 void schedule_next(void) {
@@ -35,9 +14,9 @@ void schedule_next(void) {
 		tcb_queue.current_task->status = READY;
 		push_task(tcb_queue.current_task);
 	}
-	if(tcb_queue.current_task->status == SLEEPING){
-		push_sem(tcb_queue.current_task);
-	}
+	// if (tcb_queue.current_task->status == SLEEPING) {
+	// 	push_task(tcb_queue.current_task);
+	// }
 	//Timing calculation
 	if (tcb_queue.current_task->status == KILLED) {
 		uint32_t turn_around_time = __getTime() - tcb_queue.current_task->start_time_t;
@@ -47,10 +26,8 @@ void schedule_next(void) {
 
 
 	tcb_queue.current_task = pop_task();
+
 	tcb_queue.current_task->status = RUNNING;
-	if(tcb_queue.current_task->status == SLEEPING){
-		return;
-	}
 	//Timing calculation
 	if (tcb_queue.current_task->response_time_t == 0) {
 		tcb_queue.current_task->response_time_t = __getTime();
@@ -119,7 +96,7 @@ void __attribute__((naked)) PendSV_Handler(void) {
 		);
 	//Schedule next task
 	schedule_next();
-	
+
 
 	asm volatile(
 		"mov r0, %0"
@@ -151,10 +128,11 @@ void task_1(void) {
 	// kprintf("<3 1___\n");
 
 	while (1) {
-		// kprintf("<4 1___\n");
 
-		// while(if_lock != 0);
+		// kprintf("<4 1___\n");
 		sem_dec(&task_semaphore); //increment semaphore (critical section)
+		// kprintf("<4_2 1___\n");
+		while(task_semaphore != 0);
 		// if_lock = 1;
 
 		// kprintf("<5 1___\n");
@@ -165,25 +143,24 @@ void task_1(void) {
 		// kprintf("<7 1___\n");
 		uint8_t is_valid = (value != GLOBAL_COUNT + 1);
 		// kprintf("<8 1___\n");
-		
+
 		// while(if_lock != 0);
 		sem_inc(&task_semaphore); //increment semaphore (critical section)
-		// if_lock = 1;
 
 
 		// kprintf("<9 1___\n");
 		if (is_valid) {
-		// kprintf("<10 1___\n");
+			// kprintf("<10 1___\n");
 			kprintf("Error in pid %d with %d != %d\n\r", pid, value, GLOBAL_COUNT + 1);
-		// kprintf("<11 1___\n");
+			// kprintf("<11 1___\n");
 		}
 		else {
-		// kprintf("<12 1___\n");
+			// kprintf("<12 1___\n");
 			// sem_dec(&task_semaphore); //decrement semaphore (critical section)
 			GLOBAL_COUNT = value;
-		// kprintf("<13 1___\n");
+			// kprintf("<13 1___\n");
 			inc_count1++;
-		// kprintf("<14 1___\n");
+			// kprintf("<14 1___\n");
 			// sem_inc(&task_semaphore); //increment semaphore (critical section)
 		}
 		// kprintf("<15 1___\n");
@@ -193,9 +170,9 @@ void task_1(void) {
 		// sem_inc(&task_semaphore); //increment semaphore (critical section)
 
 		if (is_valid) {
-		// kprintf("<17 1___\n");
+			// kprintf("<17 1___\n");
 			kprintf("Total increment done by task 1 is: %d\n\r", inc_count1);
-		// kprintf("<18 1___\n");
+			// kprintf("<18 1___\n");
 			break;
 		}
 	}
@@ -212,9 +189,9 @@ void task_2(void) {
 
 	while (1) {
 		// kprintf("<4_2___\n");
-
-		// while(if_lock != 1);
 		sem_dec(&task_semaphore); //increment semaphore (critical section)
+		// kprintf("<42_2___\n");
+		while(task_semaphore != 0);
 		// if_lock = 0;
 
 		// kprintf("<5_2___\n");
@@ -227,21 +204,21 @@ void task_2(void) {
 
 		// while(if_lock != 1);
 		sem_inc(&task_semaphore); //increment semaphore (critical section)
-		// if_lock = 0;
+		if_lock = 0;
 
 		// kprintf("<9_2___\n");
 		if (is_valid) {
-		// kprintf("<10_2___\n");
+			// kprintf("<10_2___\n");
 			kprintf("Error in pid %d with %d != %d\n\r", pid, value, GLOBAL_COUNT + 1);
-		// kprintf("<11_2___\n");
+			// kprintf("<11_2___\n");
 		}
 		else {
-		// kprintf("<12_2___\n");
+			// kprintf("<12_2___\n");
 			// sem_dec(&task_semaphore); //decrement semaphore (critical section)
 			GLOBAL_COUNT = value;
-		// kprintf("<13_2___\n");
+			// kprintf("<13_2___\n");
 			inc_count2++;
-		// kprintf("<14_2___\n");
+			// kprintf("<14_2___\n");
 			// sem_inc(&task_semaphore); //increment semaphore (critical section)
 		}
 		// kprintf("<15_2___\n");
@@ -251,9 +228,9 @@ void task_2(void) {
 		// sem_inc(&task_semaphore); //increment semaphore (critical section)
 
 		if (is_valid) {
-		// kprintf("<17_2___\n");
+			// kprintf("<17_2___\n");
 			kprintf("Total increment done by task 2 is: %d\n\r", inc_count2);
-		// kprintf("<18_2___\n");
+			// kprintf("<18_2___\n");
 			break;
 		}
 	}
@@ -270,31 +247,31 @@ void sleep_state(void) {
 
 void scheduling_tester(void) {
 	init_queue();
-	// for (int i = 0; i < TASK_COUNT; i++) {
-	// 	create_tcb((TCB_TypeDef*)tcb_list + i, task_1, (uint32_t*)TASK_STACK_START - i * TASK_STACK_SIZE);
-	// 	push_task((TCB_TypeDef*)tcb_list + i);
-	// }
-	create_tcb(tcb_list, task_1, (uint32_t*)TASK_STACK_START);
-	create_tcb(tcb_list + 1, task_2, (uint32_t*)(TASK_STACK_START - TASK_STACK_SIZE));
-	push_task(tcb_list);
-	push_task(tcb_list + 1);
+	for (int i = 0; i < TASK_COUNT; i++) {
+		create_tcb(tcb_list + i, task_1, (uint32_t*)(TASK_STACK_START - i * TASK_STACK_SIZE));
+		push_task(tcb_list + i);
+	}
+	// create_tcb(tcb_list, task_1, (uint32_t*)TASK_STACK_START);
+	// create_tcb(tcb_list + 1, task_2, (uint32_t*)(TASK_STACK_START - TASK_STACK_SIZE));
+	// push_task(tcb_list);
+	// push_task(tcb_list + 1);
 
 
-	create_tcb((TCB_TypeDef*)&tcb_queue.sleep, sleep_state, (uint32_t*)(TASK_STACK_START - 2 * TASK_STACK_SIZE));
+	create_tcb((TCB_TypeDef*)&tcb_queue.sleep, sleep_state, (uint32_t*)(TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE));
 	set_pending(1);
 	start_exec();
 	kprintf("________END SCHEDULING TESTER________\n");
 }
 
 void print_task_time(void) {
-	
+
 
 	for (int i = 0;i < TASK_COUNT;i++) {
 		TCB_TypeDef* task = (TCB_TypeDef*)tcb_list + i;
 		kprintf("Task ID: %d, Execution Time: %d,   Waiting Time: %d,   Response Time: %d   Turn Around Time: %d\n",
 			task->task_id, task->execution_time, task->waiting_time, task->response_time_t, task->waiting_time + task->execution_time);
 	}
-	
+
 }
 
 
