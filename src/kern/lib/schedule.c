@@ -198,11 +198,6 @@ void scheduling_tester(void) {
 		create_tcb(tcb_list + i, task_with_semaphore, (uint32_t*)(TASK_STACK_START - i * TASK_STACK_SIZE));
 		push_task(tcb_list + i);
 	}
-	// create_tcb(tcb_list, task_with_semaphore, (uint32_t*)TASK_STACK_START);
-	// create_tcb(tcb_list + 1, task_no_semaphore, (uint32_t*)(TASK_STACK_START - TASK_STACK_SIZE));
-	// push_task(tcb_list);
-	// push_task(tcb_list + 1);
-
 
 	create_tcb((TCB_TypeDef*)&tcb_queue.sleep, sleep_state, (uint32_t*)(TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE));
 	set_pending(1);
@@ -221,52 +216,3 @@ void print_task_time(void) {
 
 }
 
-
-void print_task_info(void);
-void print_task_info(void) {
-	kprintf("----------------TASK Queue--------------------\n");
-
-	for (int i = 0;i < TASK_COUNT;i++) {
-		TCB_TypeDef* task = (TCB_TypeDef*)tcb_list + i;
-		char status[20];
-		if (task->status == 1) {
-			__strcpy(status, "READY");
-		}
-		else if (task->status == 2) {
-			__strcpy(status, "RUNNING");
-		}
-		else if (task->status == 3) {
-			__strcpy(status, "TERMINATED");
-		}
-		else if (task->status == 4) {
-			__strcpy(status, "KILLED");
-		}
-		else if (task->status == 5) {
-			__strcpy(status, "SLEEPING");
-		}
-	}
-}
-
-void print_task_sem_queue(void) {
-	kprintf("------------------SEM Queue---------------------\n");
-	for (int i = 0;i < sem_queue.size;i++) {
-		TCB_TypeDef* task = sem_queue.q[i];
-		char status[20];
-		if (task->status == 1) {
-			__strcpy(status, "READY");
-		}
-		else if (task->status == 2) {
-			__strcpy(status, "RUNNING");
-		}
-		else if (task->status == 3) {
-			__strcpy(status, "TERMINATED");
-		}
-		else if (task->status == 4) {
-			__strcpy(status, "KILLED");
-		}
-		else if (task->status == 5) {
-			__strcpy(status, "SLEEPING");
-		}
-		kprintf("task id: %d, status: %s\n", task->task_id, status);
-	}
-}

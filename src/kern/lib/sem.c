@@ -56,9 +56,6 @@ void wait(void){
         push_sem(tcb_queue.current_task);
         tcb_queue.current_task->status = SLEEPING;
     }
-    while(task_semaphore != 0){
-        asm volatile("nop");
-    }
 }
 
 void signal(void){
