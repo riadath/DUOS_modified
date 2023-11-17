@@ -26,6 +26,7 @@ void sem_dec(uint32_t* semaphore) {
         "   B       1b                  \n"
         "3:                             \n"
         : [r0] "=r" (semaphore) : );
+        return;
 }
 
 void sem_inc(uint32_t* semaphore) {

@@ -54,10 +54,20 @@
 
 extern volatile uint8_t scheduling_algo; //0 for round robin, 1 for fcfs
 
+extern uint32_t avg_response_time_rr;
+extern uint32_t avg_waiting_time_rr;
+extern uint32_t avg_execution_time_rr;
+extern uint32_t avg_turnaround_time_rr;
+
 void schedule_next(void);
 void create_tcb(TCB_TypeDef *, void(*task)(void), uint32_t *stack_start);
 void start_exec(void);
 
+
+void task_with_semaphore(void);
+void sleep_state(void);
+void scheduling_tester(void);
+void process_stat(void);
 #endif
 
 

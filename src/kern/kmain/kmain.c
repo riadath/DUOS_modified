@@ -68,28 +68,26 @@ void __move_to_user(void){
 	);
 }
 
-volatile uint32_t var = 0;
 
 void kmain(void){
 	__sys_init();
 
 	__NVIC_SetPriority(SVCall_IRQn, 0x1);
-	__NVIC_SetPriority(SysTick_IRQn, 0x2);
 	__NVIC_SetPriority(PendSV_IRQn, 0xFF); 
 	
 	__move_to_user();
 
+	kprintf("Do you want to run the Scheduler Tester? (y/n)\n");
+	char cmd;
+	kscanf("%c",&cmd);
+	if (cmd == 'y'){
+		scheduling_tester();
+	}else if(cmd == 'n'){
+		kprintf("//------------------Welcome to the Shell------------------//\n\r");
+	}else{
+		kprintf("Invalid Command\n\r");
+	}
 
-	// SVC_Tester();
-	scheduling_tester();
-	// scheduling_tester_fcfs();
-	
-	// sem_inc(&var);
-	// kprintf("var = %d\n", var);
-	// sem_inc(&var);
-	// kprintf("var = %d\n", var);
-	// sem_dec(&var);
-	// kprintf("var = %d\n", var);
 	while(1);
 }
 

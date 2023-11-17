@@ -2,10 +2,14 @@
 #include <sem.h>
 
 volatile TaskQueue_TypeDef tcb_queue;
-volatile uint32_t if_lock = 0;
 volatile uint8_t scheduling_algo = 0;
+uint32_t TASK_ID = 1000;
+uint32_t exec_start_time = 0;
+uint32_t avg_response_time_rr = 0;
+uint32_t avg_waiting_time_rr = 0;
+uint32_t avg_execution_time_rr = 0;
+uint32_t avg_turnaround_time_rr = 0;
 TCB_TypeDef tcb_list[MAX_TASK];
-uint32_t TASK_ID = 1000, exec_start_time = 0;
 
 //-------------scheduling functions----------------
 void schedule_next(void) {
@@ -28,7 +32,6 @@ void schedule_next(void) {
 
 	return;
 }
-
 
 void start_exec(void) {
 	if (tcb_queue.size == 0)return;
@@ -88,10 +91,15 @@ void __attribute__((naked)) PendSV_Handler(void) {
 		:
 		);
 	//Schedule next task
-	if(scheduling_algo == 0)
-		schedule_next();
-	else if(scheduling_algo == 1)
-		next_task_fcfs();
+	if (scheduling_algo == 0){
+		// schedule_next();
+		asm volatile("BL schedule_next");
+	}
+	else if (scheduling_algo == 1){
+		// schedule_next_fcfs();
+		asm volatile("BL schedule_next_fcfs");
+
+	}
 
 	asm volatile(
 		"mov r0, %0"
@@ -110,10 +118,7 @@ void __attribute__((naked)) PendSV_Handler(void) {
 
 uint32_t GLOBAL_COUNT = 0;
 
-void task_with_semaphore(void);
-void sleep_state(void);
-void scheduling_tester(void);
-void print_task_time(void);
+
 
 void task_with_semaphore(void) {
 	uint32_t pid = getpid();
@@ -180,7 +185,7 @@ void task_no_semaphore(void) {
 
 void sleep_state(void) {
 	set_pending(0);
-	print_task_time();
+	process_stat();
 	scheduling_tester_fcfs();
 	kprintf("Sleeping\n");
 	while (1);
@@ -199,17 +204,29 @@ void scheduling_tester(void) {
 	create_tcb((TCB_TypeDef*)&tcb_queue.sleep, sleep_state, (uint32_t*)(TASK_STACK_START - TASK_COUNT * TASK_STACK_SIZE));
 	set_pending(1);
 	start_exec();
-	kprintf("________END SCHEDULING TESTER________\n");
 }
 
-void print_task_time(void) {
 
+
+void process_stat(void) {
+	kprintf("\n\n__________________Process Statistics (Round Robin)__________________\n");
 
 	for (int i = 0;i < TASK_COUNT;i++) {
 		TCB_TypeDef* task = (TCB_TypeDef*)tcb_list + i;
+		
+		avg_execution_time_rr += task->execution_time;
+		avg_waiting_time_rr += task->waiting_time;
+		avg_response_time_rr += task->response_time_t;
+		avg_turnaround_time_rr += task->waiting_time + task->execution_time;
+
 		kprintf("Task ID: %d, Execution Time: %d,   Waiting Time: %d,   Response Time: %d   Turn Around Time: %d\n",
 			task->task_id, task->execution_time, task->waiting_time, task->response_time_t, task->waiting_time + task->execution_time);
 	}
+	avg_execution_time_rr /= TASK_COUNT;
+	avg_waiting_time_rr /= TASK_COUNT;
+	avg_response_time_rr /= TASK_COUNT;
+	avg_turnaround_time_rr /= TASK_COUNT;
+	
 
 }
 
