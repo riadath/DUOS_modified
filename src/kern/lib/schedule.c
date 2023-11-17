@@ -26,7 +26,7 @@ void schedule_next(void) {
 	tcb_queue.current_task->status = RUNNING;
 	//Timing calculation
 	if (tcb_queue.current_task->response_time_t == 0) {
-		tcb_queue.current_task->response_time_t = __getTime();
+		tcb_queue.current_task->response_time_t = __getTime() - tcb_queue.current_task->start_time_t;
 	}
 
 
@@ -196,8 +196,18 @@ void scheduling_tester(void) {
 	scheduling_algo = 0;
 	kprintf("________START SCHEDULING TESTER FOR ROUND ROBIN WITH(OUT) SEMAPHORE________\n");
 	init_queue();
+	kprintf("Do you want to run the scheduler with semaphore? (y/n)\n");
+	char cmd;
+	kscanf("%c", &cmd);
+	void* task_ptr;
+	if(cmd == 'y'){
+		task_ptr = task_with_semaphore;
+	}else{
+		task_ptr = task_no_semaphore;
+	}
+	
 	for (int i = 0; i < TASK_COUNT; i++) {
-		create_tcb(tcb_list + i, task_with_semaphore, (uint32_t*)(TASK_STACK_START - i * TASK_STACK_SIZE));
+		create_tcb(tcb_list + i, task_ptr, (uint32_t*)(TASK_STACK_START - i * TASK_STACK_SIZE));
 		push_task(tcb_list + i);
 	}
 

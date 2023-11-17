@@ -42,9 +42,9 @@ void create_task_fcfs(TCB_TypeDef* tcb, void(*task)(void), uint32_t* stack_start
 void schedule_next_fcfs(void) {
 	// first come first serve
 	uint32_t time = __getTime();
-	tcb_queue.current_task->execution_time += time - tcb_queue.current_task->response_time_t;
+	tcb_queue.current_task->execution_time += time - tcb_queue.current_task->response_time_t - tcb_queue.current_task->start_time_t;
 	tcb_queue.current_task = pop_task();
-	tcb_queue.current_task->response_time_t = time;
+	tcb_queue.current_task->response_time_t = time - tcb_queue.current_task->start_time_t;
 	tcb_queue.current_task->waiting_time += time - exec_start_time_fcfs;
 
 	tcb_queue.current_task->status = RUNNING;
@@ -64,7 +64,7 @@ void start_exec_fcfs(void) {
 	}
 	uint32_t cur_time = get_time();
 	exec_start_time_fcfs = cur_time;
-	tcb_queue.current_task->response_time_t = cur_time;
+	tcb_queue.current_task->response_time_t = cur_time - tcb_queue.current_task->start_time_t;
 	tcb_queue.current_task->status = RUNNING;
 	start_task(tcb_queue.current_task->psp);
 }
@@ -102,11 +102,6 @@ void task_1_fcfs(void) {
 	uint32_t value;
 	uint32_t inc_count = 0;
 	uint32_t pid = getpid();
-	//default loop runs 100000000 times
-	// uint32_t loop = 10000000;
-	// while(loop--){
-	// 	asm("nop");
-	// }
 
 	kprintf("________________________Task pid: %d\n\r", pid);
 	while (1) {
@@ -185,15 +180,15 @@ void process_stat_fcfs(void) {
 void print_performace_comp(void) {
 	kprintf("\n\n__________________Performance Comparison__________________\n\n");
 	kprintf("Round Robin:\n");
-	kprintf("Average Execution Time: %d\n", avg_execution_time_rr);
-	kprintf("Average Waiting Time: %d\n", avg_waiting_time_rr);
 	kprintf("Average Response Time: %d\n", avg_response_time_rr);
+	kprintf("Average Waiting Time: %d\n", avg_waiting_time_rr);
+	kprintf("Average Execution Time: %d\n", avg_execution_time_rr);
 	kprintf("Average Turn Around Time: %d\n", avg_turnaround_time_rr);
 
 	kprintf("\n\nFirst Come First Serve:\n");
-	kprintf("Average Execution Time: %d\n", avg_execution_time_fcfs);
-	kprintf("Average Waiting Time: %d\n", avg_waiting_time_fcfs);
 	kprintf("Average Response Time: %d\n", avg_response_time_fcfs);
+	kprintf("Average Waiting Time: %d\n", avg_waiting_time_fcfs);
+	kprintf("Average Execution Time: %d\n", avg_execution_time_fcfs);
 	kprintf("Average Turn Around Time: %d\n", avg_turnaround_time_fcfs);
 
 
