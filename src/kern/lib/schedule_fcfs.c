@@ -174,6 +174,10 @@ void process_stat_fcfs(void) {
 		kprintf("Task ID: %d, Execution Time: %d, Waiting Time: %d, Response Time: %d Turn Around Time: %d\n",
 			task->task_id, task->execution_time, task->waiting_time, task->response_time_t, task->waiting_time + task->execution_time);
 	}
+	avg_execution_time_fcfs /= TASK_COUNT;
+	avg_waiting_time_fcfs /= TASK_COUNT;
+	avg_response_time_fcfs /= TASK_COUNT;
+	avg_turnaround_time_fcfs /= TASK_COUNT;
 }
 
 
