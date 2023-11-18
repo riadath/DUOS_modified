@@ -29,7 +29,6 @@ void schedule_next(void) {
 		tcb_queue.current_task->response_time_t = __getTime() - tcb_queue.current_task->start_time_t;
 	}
 
-
 	return;
 }
 
